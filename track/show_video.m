@@ -19,6 +19,7 @@ function update_visualization_func = show_video(img_files)
 	num_frames = numel(img_files);
 	boxes1 = cell(num_frames,1);
     boxes2 = cell(num_frames,1);
+    boxes3 = cell(num_frames,1);
 
 	%create window
 	[fig_h, axes_h, unused, scroll] = videofig(num_frames, @redraw, [], [], @on_key_press);  %#ok, unused outputs
@@ -29,16 +30,20 @@ function update_visualization_func = show_video(img_files)
 	im_h = [];
 	rect1_h = [];
     rect2_h = [];
+    rect3_h = cell(10,1);
+    hsv_color = hsv;
+    hsv_color = hsv_color(randperm(64,10),:);
 	
 	update_visualization_func = @update_visualization;
 	stop_tracker = false;
 	
 
-	function stop = update_visualization(frame, box1, box2)
+	function stop = update_visualization(frame, box1, box2,box3cell)
 		%store the tracker instance for one frame, and show it. returns
 		%true if processing should stop (user pressed 'Esc').
 		boxes1{frame} = box1;
         boxes2{frame} = box2;
+        boxes3{frame} = box3cell;
 		scroll(frame);
 		stop = stop_tracker;
 	end
@@ -55,23 +60,38 @@ function update_visualization_func = show_video(img_files)
 		hold on
 		%render target bounding box for this frame
 		if isempty(rect1_h),  %create it for the first time
-			rect1_h = plot([0,0,0,0,0], [0,0,0,0,0], 'g', 'Parent',axes_h);
+			rect1_h = plot([0,0,0,0,0], [0,0,0,0,0], 'g','LineWidth',2, 'Parent',axes_h);
 		end
-		if ~isempty(boxes1{frame}),
-			set(rect1_h, 'Visible', 'on', 'XData', boxes1{frame}([1,3,5,7,1]), 'YData', boxes1{frame}([2,4,6,8,2]));
-		else
-			set(rect1_h, 'Visible', 'off');
+        if ~isempty(boxes1{frame}),
+            set(rect1_h, 'Visible', 'on', 'XData', boxes1{frame}([1,3,5,7,1]), 'YData', boxes1{frame}([2,4,6,8,2]));
+        else
+            set(rect1_h, 'Visible', 'off');
         end
         
-        		%render target bounding box for this frame
-		if isempty(rect2_h),  %create it for the first time
-			rect2_h = rectangle('Position',[0,0,1,1], 'EdgeColor','y', 'Parent',axes_h);
-		end
-		if ~isempty(boxes2{frame}),
-			set(rect2_h, 'Visible', 'on', 'Position', boxes2{frame});
-		else
-			set(rect2_h, 'Visible', 'off');
-		end
+
+
+        
+        
+        for i = 1:10
+            if isempty(rect3_h{i}),  %create it for the first time
+                rect3_h{i} = rectangle('Position',[0,0,1,1], 'EdgeColor',hsv_color(i,:), 'Parent',axes_h);
+            end
+            if numel(boxes3{frame})>=i && ~isempty(boxes3{frame}),
+                set(rect3_h{i}, 'Visible', 'on', 'Position', boxes3{frame}{i});
+            else
+                set(rect3_h{i}, 'Visible', 'off');
+            end
+        end
+        %render target bounding box for this frame
+        if isempty(rect2_h),  %create it for the first time
+            rect2_h = rectangle('Position',[0,0,1,1], 'EdgeColor','y', 'LineWidth',2,'Parent',axes_h);
+        end
+        if ~isempty(boxes2{frame}),
+            set(rect2_h, 'Visible', 'on', 'Position', boxes2{frame});
+        else
+            set(rect2_h, 'Visible', 'off');
+        end
+        
 	end
 
 	function on_key_press(key)

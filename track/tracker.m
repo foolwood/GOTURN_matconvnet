@@ -23,6 +23,8 @@ image_prev = imread(img_files{1});
 bbox_prev_tight = bbox_gt;
 bbox_prev_prior_tight = bbox_gt;
 
+pooling5 = [];
+
 for frame = 2:numel(img_files),
     %%load image
     image_curr = imread(img_files{frame});
@@ -31,13 +33,15 @@ for frame = 2:numel(img_files),
     [curr_search_region,search_location,edge_spacing_x,...
         edge_spacing_y] = crop_pad_image(bbox_prev_prior_tight,image_curr);
     
-    bbox_estimate = regressor_regress(net,gpu_id,curr_search_region,target_pad);
+    [bbox_estimate_cell,pooling5] = regressor_regress(net,pooling5,gpu_id,curr_search_region,target_pad);
     
     %%unscale the estimation to the real image size
-    bbox_estimate_unscaled = bb_unscale(bbox_estimate,curr_search_region);
+    bbox_estimate_unscaled_cell = bb_unscale(bbox_estimate_cell,curr_search_region);
     %%find the estimated bounding box location relative to the current crop
-    bbox_estimate_uncentered = bb_uncenter(bbox_estimate_unscaled,image_curr,...
+    bbox_estimate_uncentered_cell = bb_uncenter(bbox_estimate_unscaled_cell,image_curr,...
         search_location,edge_spacing_x,edge_spacing_y);
+    
+    bbox_estimate_uncentered = mean(cell2mat(bbox_estimate_uncentered_cell),1);
     
     image_prev = image_curr;
     bbox_prev_tight = bbox_estimate_uncentered;
@@ -47,7 +51,7 @@ for frame = 2:numel(img_files),
     time = time + toc;
     
     if show_visualization,
-        stop = update_visualization(frame, ground_truth(frame,:),result(frame,:));
+        stop = update_visualization(frame, ground_truth(frame,:),result(frame,:),bbox_estimate_uncentered_cell);
         if stop, break, end
         drawnow
     end
