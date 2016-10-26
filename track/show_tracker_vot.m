@@ -11,10 +11,10 @@ if exist(net_file,'file')
 else
     error('No net to load!!!!');
 end
-% if numel(gpu_id)>0    %TODO
-%    gpuDevice(gpu_id) ;
-%    net.move('gpu') ; 
-% end
+if numel(gpu_id)>0    %TODO
+   gpuDevice(gpu_id) ;
+   net.move('gpu') ; 
+end
 net.mode = 'test';
 
 dirs = dir(base_path);
