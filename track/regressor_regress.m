@@ -32,19 +32,20 @@
 
 function [bbox_estimate] = regressor_regress(net,gpu_id,curr_search_image,target_pad)
 
-curr_search_image = curr_search_image(:,:,[3,2,1]);
-curr_search_image = permute(curr_search_image,[2,1,3]);
+try
+    target_ = single(cv_resize(target_pad)) ;
+    image_ = single(cv_resize(curr_search_image)) ;
+catch
+    target_ = single(imresize(target_pad, net.meta.normalization.imageSize(1:2),'METHOD','bilinear'));
+    image_ = single(imresize(curr_search_image, net.meta.normalization.imageSize(1:2),'METHOD','bilinear'));
+end
 
-target_pad = target_pad(:,:,[3,2,1]);
-target_pad = permute(target_pad,[2,1,3]);
-
-target_ = imresize(single(target_pad), net.meta.normalization.imageSize(1:2),'METHOD','bilinear') ;
+target_ = target_(:,:,[3,2,1]);
+image_ = image_(:,:,[3,2,1]);
 target_ = bsxfun(@minus, target_, net.meta.normalization.averageImage) ;
-
-image_ = imresize(single(curr_search_image), net.meta.normalization.imageSize(1:2),'METHOD','bilinear') ;
 image_ = bsxfun(@minus, image_, net.meta.normalization.averageImage) ;
-
-
+target_ = permute(target_,[2,1,3]);
+image_ = permute(image_,[2,1,3]);
 
 if numel(gpu_id)>0
     net.eval({'target', gpuArray(target_),'image', gpuArray(image_)}) ;
