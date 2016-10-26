@@ -27,7 +27,7 @@ else
 end
 
 if numel(gpu_id)>0    %TODO
-   gpuDevice(gpu_id) ;
+%    gpuDevice(gpu_id) ;
    net.move('gpu') ; 
 end
 net.mode = 'test';
