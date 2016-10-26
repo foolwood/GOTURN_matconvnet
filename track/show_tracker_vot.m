@@ -4,12 +4,14 @@ if ispc()
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
     if nargin < 2, base_path = 'E:\data\vot2015/'; end
     if nargin < 3, gpu_id = [2]; end
-    if nargin < 4, show_visualization = 1; end
+    if nargin < 4, start_vidoe_num = 1; end
+    if nargin < 5, show_visualization = 1; end
 else
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
     if nargin < 2, base_path = '../VOT15/'; end
     if nargin < 3, gpu_id = []; end
-    if nargin < 4, show_visualization = 1; end
+    if nargin < 4, start_vidoe_num = 1; end
+    if nargin < 5, show_visualization = 1; end
 end
 
 
@@ -33,6 +35,7 @@ for  v = start_vidoe_num:numel(videos)
     [img_files, ground_truth] = load_video_info_vot(base_path, video);
     [result, time] = tracker(img_files, ground_truth, net, gpu_id, show_visualization);
     fprintf('Video: %d , fps:%3.3f\n',v,size(result,1)/time);
+    close all
 end
 
 end %%function
