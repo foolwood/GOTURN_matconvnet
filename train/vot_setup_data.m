@@ -28,7 +28,7 @@ if(opts.make_imdb)%vot15:21395 vot14:10188
     imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
 end
 
-now_index = 0;
+now_index = 1;
 bboxs113 = zeros(1,1,4,'single');
 
 disp('Training Data:');
