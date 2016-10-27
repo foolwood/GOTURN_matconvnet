@@ -38,7 +38,7 @@ classdef LossL1 < dagnn.Loss
 
       delta = sign(inputs{1} - inputs{2}) ;
 
-      derInputs = {delta .* derOutputs{1}, [], []} ;
+      derInputs = {delta .* derOutputs{1}, []} ;
       derParams = {} ;
     end
 

@@ -18,14 +18,14 @@ end
 
 
 if ispc()
-    trainOpts.gpus = [] ;
+    trainOpts.gpus = [1] ;
 else
     trainOpts.gpus = [] ;
 end
 
-trainOpts.learningRate = 0.001 ;
+trainOpts.learningRate = 1e-5 ;
 trainOpts.numEpochs = 50 ;
-trainOpts.batchSize = 30;
+trainOpts.batchSize = 50;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
@@ -51,21 +51,9 @@ else
     tic
     imdb = vot_setup_data('dataDir', opts.dataDir) ;
     toc
-    %mkdir(opts.expDir) ;
-    %save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;
+    mkdir(opts.expDir) ;
+    save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;
 end
-
-% imageStatsPath = fullfile(opts.expDir, 'imageStats.mat') ;
-% if exist(imageStatsPath,'file')
-%     load(imageStatsPath, 'averageImage', 'rgbMean') ;
-% else
-%     train = imdb.images.set == 1 ;
-%     images = imdb.images(:,:,:,train) ;
-%     [averageImage, rgbMean] = getImageStats(images,'imageSize', net) ;
-%     save(imageStatsPath, 'averageImage', 'rgbMean') ;
-% end
-
-
 
 % -------------------------------------------------------------------------
 %                                                                     Learn

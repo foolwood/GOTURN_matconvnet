@@ -100,7 +100,7 @@ net.addLayer('drop7b',drop7b,{'fc7bx'},{'fc7bx_dropout'});
 fc8_shapes = dagnn.Conv('size', [1 1 4096 4], 'pad', 0, 'stride', 1, 'hasBias', true) ;
 net.addLayer('fc8_shapes', fc8_shapes, {'fc7bx_dropout'}, {'fc8'}, {'filters8', 'biases8'}) ;
 
-net.addLayer('lossl1', dagnn.LossL1(), {'pred','bbox'}, 'objective');
+net.addLayer('lossl1', dagnn.LossL1(), {'fc8','bbox'}, 'objective');
 
 %% params
 
