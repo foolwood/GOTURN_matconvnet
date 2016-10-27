@@ -4,8 +4,15 @@ function imdb = vot_setup_data(varargin)
 
 opts = [];
 opts.size = [227,227];
-opts.show_visualization = true;
-opts.make_imdb = false;%make sure it will take a looooong time & memory
+
+opts.dataDir = '../data';
+opts = vl_argparse(opts, varargin) ;
+opts.train_dataDir = fullfile(opts.dataDir,'VOT15');
+opts.val_dataDir = fullfile(opts.dataDir,'VOT14');
+
+opts.show_visualization = false;
+opts.make_imdb = ispc();%make sure it will take a looooong time & memory
+
 imdb = [];
 % -------------------------------------------------------------------------
 %                                                             Training Data
@@ -24,7 +31,7 @@ end
 now_index = 0;
 bboxs113 = zeros(1,1,4,'single');
 
-opts.train_dataDir = '../data/VOT15';
+disp('Training Data:');
 dirs = dir(opts.train_dataDir);
 videos = {dirs.name};
 videos(strcmp('.', videos) | strcmp('..', videos)| ~[dirs.isdir]) = [];
@@ -104,7 +111,7 @@ end %%end v
 %                                                           Validation Data
 % -------------------------------------------------------------------------
 
-opts.val_dataDir = '../data/VOT14';
+disp('Validation Data:');
 dirs = dir(opts.val_dataDir);
 videos = {dirs.name};
 videos(strcmp('.', videos) | strcmp('..', videos)| ~[dirs.isdir]) = [];
@@ -178,10 +185,10 @@ for  v = 1:numel(videos)
     end %%end frame
 end %%end v
 
-
-% dataMean = mean(imdb.images.target(:,:,:,set == 1), 4);
-% 
-% imdb.images.data_mean = dataMean;
-% imdb.meta.sets = {'train', 'val'} ;
-
+if(opts.make_imdb)
+    dataMean = mean(imdb.images.target(:,:,:,set == 1), 4);
+    imdb.images.data_mean = dataMean;
+    imdb.meta.sets = {'train', 'val'} ;
 end
+
+end %%end function
