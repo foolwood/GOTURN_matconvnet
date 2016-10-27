@@ -1,2 +1,7 @@
 
 *.mat
+*.jpg
+*.label
+*.txt
+*.tmp
+*.value
