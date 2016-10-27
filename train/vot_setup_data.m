@@ -21,6 +21,7 @@ imdb = [];
 
 if(opts.make_imdb)%vot15:21395 vot14:10188
     set = [ones(1,21395) 2*ones(1,10188)];
+    imdb.images.set = set;
     imdb.images.target = zeros(opts.size(1),opts.size(2),3,...
         numel(set),'single');
     imdb.images.search = zeros(opts.size(1),opts.size(2),3,...
@@ -188,6 +189,8 @@ end %%end v
 if(opts.make_imdb)
     dataMean = mean(imdb.images.target(:,:,:,set == 1), 4);
     imdb.images.data_mean = dataMean;
+    imdb.images.target = bsxfun(@minus, imdb.images.target, dataMean) ;
+    imdb.images.search = bsxfun(@minus, imdb.images.search, dataMean) ;
     imdb.meta.sets = {'train', 'val'} ;
 end
 

@@ -7,27 +7,25 @@ opts.networkName = 'GOTURN';
 opts.batchNormalization = true ;
 opts.numFetchThreads = 12 ;
 
-
-
 sfx = opts.networkName ;
 if opts.batchNormalization, sfx = [sfx '-bnorm'] ; end
 opts.expDir = fullfile(pwd, '..', 'data', ['VOT-' sfx]) ;
-opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
-
-
-opts.train = struct() ;
-trainOpts.batchSize = 20 ;
-trainOpts.numSubBatches = 10 ;
-trainOpts.continue = true ;
 if ispc()
-    trainOpts.gpus = [1] ;
+    opts.imdbPath = 'E:\goturn_train\imdb.mat';
+else
+    opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
+end
+
+
+if ispc()
+    trainOpts.gpus = [] ;
 else
     trainOpts.gpus = [] ;
 end
-trainOpts.prefetch = true ;
-trainOpts.expDir = opts.expDir ;
-trainOpts.learningRate = 0.0001 * ones(1,50) ;
-trainOpts.numEpochs = numel(trainOpts.learningRate) ;
+
+trainOpts.learningRate = 0.001 ;
+trainOpts.numEpochs = 50 ;
+trainOpts.batchSize = 30;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
@@ -53,8 +51,8 @@ else
     tic
     imdb = vot_setup_data('dataDir', opts.dataDir) ;
     toc
-    mkdir(opts.expDir) ;
-    save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;
+    %mkdir(opts.expDir) ;
+    %save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;
 end
 
 % imageStatsPath = fullfile(opts.expDir, 'imageStats.mat') ;
