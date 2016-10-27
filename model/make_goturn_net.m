@@ -6,7 +6,7 @@
 
 run vl_setupnn.m ;
 net = dagnn.DagNN() ;
-net.meta.normalization.averageImage = reshape(single([104,117,123]),[1,1,3]);
+net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
 net.meta.normalization.imageSize = [227,227,3];
 %% target
 
@@ -193,46 +193,46 @@ net.addLayer('fc8_shapes', fc8_shapes, {'fc7bx_dropout'}, {'fc8'}, {'filters8', 
 load('./goturn_train.mat');
 
 
-net.params(net.getParamIndex('filters1')).value = params(1).value;
+net.params(net.getParamIndex('filters1')).value = permute(params(1).value(:,:,[3,2,1],:),[2,1,3,4]);
 net.params(net.getParamIndex('biases1')).value = params(2).value;
 
-net.params(net.getParamIndex('filters2')).value = params(3).value;
+net.params(net.getParamIndex('filters2')).value = permute(params(3).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases2')).value = params(4).value;
 
-net.params(net.getParamIndex('filters3')).value = params(5).value;
+net.params(net.getParamIndex('filters3')).value = permute(params(5).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases3')).value = params(6).value;
 
-net.params(net.getParamIndex('filters4')).value = params(7).value;
+net.params(net.getParamIndex('filters4')).value = permute(params(7).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases4')).value = params(8).value;
 
-net.params(net.getParamIndex('filters5')).value = params(9).value;
+net.params(net.getParamIndex('filters5')).value = permute(params(9).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases5')).value = params(10).value;
 
-net.params(net.getParamIndex('filters1p')).value = params(1).value;
+net.params(net.getParamIndex('filters1p')).value = permute(params(1).value(:,:,[3,2,1],:),[2,1,3,4]);
 net.params(net.getParamIndex('biases1p')).value = params(2).value;
 
-net.params(net.getParamIndex('filters2p')).value = params(3).value;
+net.params(net.getParamIndex('filters2p')).value = permute(params(3).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases2p')).value = params(4).value;
 
-net.params(net.getParamIndex('filters3p')).value = params(5).value;
+net.params(net.getParamIndex('filters3p')).value = permute(params(5).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases3p')).value = params(6).value;
 
-net.params(net.getParamIndex('filters4p')).value = params(7).value;
+net.params(net.getParamIndex('filters4p')).value = permute(params(7).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases4p')).value = params(8).value;
 
-net.params(net.getParamIndex('filters5p')).value = params(9).value;
+net.params(net.getParamIndex('filters5p')).value = permute(params(9).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases5p')).value = params(10).value;
 
-net.params(net.getParamIndex('filters6')).value = params(11).value;
+net.params(net.getParamIndex('filters6')).value = permute(params(11).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases6')).value = params(12).value;
 
-net.params(net.getParamIndex('filters7')).value = params(13).value;
+net.params(net.getParamIndex('filters7')).value = permute(params(13).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases7')).value = params(14).value;
 
-net.params(net.getParamIndex('filters7b')).value = params(15).value;
+net.params(net.getParamIndex('filters7b')).value = permute(params(15).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases7b')).value = params(16).value;
 
-net.params(net.getParamIndex('filters8')).value = params(17).value;
+net.params(net.getParamIndex('filters8')).value = permute(params(17).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases8')).value = params(18).value;
 
 

@@ -40,12 +40,8 @@ catch
     image_ = single(imresize(curr_search_image, net.meta.normalization.imageSize(1:2),'METHOD','bilinear'));
 end
 
-target_ = target_(:,:,[3,2,1]);
-image_ = image_(:,:,[3,2,1]);
 target_ = bsxfun(@minus, target_, net.meta.normalization.averageImage) ;
 image_ = bsxfun(@minus, image_, net.meta.normalization.averageImage) ;
-target_ = permute(target_,[2,1,3]);
-image_ = permute(image_,[2,1,3]);
 
 if numel(gpu_id)>0
     net.eval({'target', gpuArray(target_),'image', gpuArray(image_)}) ;
