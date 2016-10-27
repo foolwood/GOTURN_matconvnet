@@ -8,7 +8,7 @@ if ispc()
     if nargin < 5, show_visualization = 1; end
 else
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
-    if nargin < 2, base_path = '../VOT15/'; end
+    if nargin < 2, base_path = '../data/VOT14/'; end
     if nargin < 3, gpu_id = []; end
     if nargin < 4, start_vidoe_num = 1; end
     if nargin < 5, show_visualization = 1; end
@@ -37,6 +37,5 @@ for  v = start_vidoe_num:numel(videos)
     fprintf('Video: %d , fps:%3.3f\n',v,size(result,1)/time);
     close all
 end
-
 end %%function
 
