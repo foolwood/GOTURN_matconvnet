@@ -1,19 +1,34 @@
 function [net, info] = train_goturn(varargin)
 run vl_setupnn
 
-opts.dataDir = fullfile(pwd,'..', 'data') ;
-opts.sourceNet = fullfile(pwd,'..', 'model','GOTURN_net.mat');
-opts.network = dagnn.DagNN.loadobj(load(opts.sourceNet)) ;
+opts.dataDir = fullfile(pwd, '..', 'data') ;
+opts.network = [] ;
 opts.networkName = 'GOTURN';
 opts.batchNormalization = true ;
 opts.numFetchThreads = 12 ;
+
+
 
 sfx = opts.networkName ;
 if opts.batchNormalization, sfx = [sfx '-bnorm'] ; end
 opts.expDir = fullfile(pwd, '..', 'data', ['VOT-' sfx]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
+
+
 opts.train = struct() ;
-opts = vl_argparse(opts, varargin) ;
+trainOpts.batchSize = 20 ;
+trainOpts.numSubBatches = 10 ;
+trainOpts.continue = true ;
+if ispc()
+    trainOpts.gpus = [1] ;
+else
+    trainOpts.gpus = [] ;
+end
+trainOpts.prefetch = true ;
+trainOpts.expDir = opts.expDir ;
+trainOpts.learningRate = 0.0001 * ones(1,50) ;
+trainOpts.numEpochs = numel(trainOpts.learningRate) ;
+opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
 
@@ -26,11 +41,6 @@ if isempty(opts.network)
 else
     net = opts.network ;
     opts.network = [] ;
-    
-    net.meta.inputSize = [227 227 3] ;
-    net.meta.trainOpts.learningRate = 0.001 ;
-    net.meta.trainOpts.numEpochs = 50 ;
-    net.meta.trainOpts.batchSize = 20 ;
 end
 
 % -------------------------------------------------------------------------
@@ -44,7 +54,7 @@ else
     imdb = vot_setup_data('dataDir', opts.dataDir) ;
     toc
     mkdir(opts.expDir) ;
-    save(opts.imdbPath, '-struct', 'imdb') ;
+    save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;
 end
 
 % imageStatsPath = fullfile(opts.expDir, 'imageStats.mat') ;
@@ -65,7 +75,6 @@ end
 
 [net, info] = cnn_train_dag(net, imdb, getBatch(opts), ...
                       'expDir', opts.expDir, ...
-                      net.meta.trainOpts, ...
                       opts.train, ...
                       'val', find(imdb.images.set == 2)) ;
 
