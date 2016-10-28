@@ -11,6 +11,7 @@ roi_width = min(image_width,max(1,ceil(pad_image_location(3))));
 roi_height = min(image_height,max(1,ceil(pad_image_location(4))));
 
 cropped_image = image(roi_top:roi_top+roi_height-1,roi_left:roi_left+roi_width-1,:);
+
 output_width = max(ceil(max(1,bbox_tight(3)*2)),roi_width);
 output_height = max(ceil(max(1,bbox_tight(4)*2)),roi_height);
 output_image = zeros(output_height,output_width,3,'uint8');
