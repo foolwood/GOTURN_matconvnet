@@ -14,10 +14,12 @@ end
 
 x_minmax = minmax(ground_truth(1,1:2:end));
 y_minmax = minmax(ground_truth(1,2:2:end));
-bbox_gt = [x_minmax(1),y_minmax(1),x_minmax(2)-x_minmax(1),y_minmax(2)-y_minmax(1)];
+bbox_gt = [x_minmax(1),y_minmax(1),x_minmax(2),y_minmax(2)]-1;
 
 time = 0;
-result = bsxfun(@times,bbox_gt,ones(numel(img_files),1));  %to calculate precision
+result = bsxfun(@times,[bbox_gt(1)+1,...
+    bbox_gt(2)+1,bbox_gt(3)-bbox_gt(1),bbox_gt(4)-bbox_gt(2)],...
+    ones(numel(img_files),1));  %to calculate precision
 
 image_prev = imread(img_files{1});
 bbox_prev_tight = bbox_gt;
@@ -43,7 +45,10 @@ for frame = 2:numel(img_files),
     bbox_prev_tight = bbox_estimate_uncentered;
     bbox_prev_prior_tight = bbox_estimate_uncentered;%TODO
     
-    result(frame,:) = bbox_estimate_uncentered;
+    result(frame,:) = [bbox_estimate_uncentered(1)+1,...
+                                bbox_estimate_uncentered(2)+1,...
+    bbox_estimate_uncentered(3)-bbox_estimate_uncentered(1),...
+    bbox_estimate_uncentered(4)-bbox_estimate_uncentered(2)];
     time = time + toc;
     
     if show_visualization,

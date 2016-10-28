@@ -4,26 +4,20 @@ run vl_setupnn
 opts.dataDir = fullfile(pwd, '..', 'data') ;
 opts.network = [] ;
 opts.networkName = 'GOTURN';
-opts.batchNormalization = true ;
-opts.numFetchThreads = 12 ;
+opts.numFetchThreads = 12 ;%TODO
+opts.version = 2; % 1 vot 2 vot-lite 3 det 4 full
 
-sfx = opts.networkName ;
-if opts.batchNormalization, sfx = [sfx '-bnorm'] ; end
-opts.expDir = fullfile(pwd, '..', 'data', ['VOT-' sfx]) ;
-if ispc()
-    opts.imdbPath = 'E:\goturn_train\imdb.mat';
-else
-    opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
-end
-
+opts.expDir = fullfile(pwd, '..', 'data', ['VOT-' opts.networkName]) ;
+opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 if ispc()
-    trainOpts.gpus = [1] ;
+    trainOpts.gpus = [1,2] ;
 else
     trainOpts.gpus = [] ;
 end
 
-trainOpts.learningRate = 1e-5 ;
+trainOpts.learningRate = 1e-3 ;
+trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 50 ;
 trainOpts.batchSize = 50;
 opts.train = trainOpts;
@@ -49,9 +43,9 @@ if exist(opts.imdbPath,'file')
     imdb = load(opts.imdbPath) ;
 else
     tic
-    imdb = vot_setup_data('dataDir', opts.dataDir) ;
+    imdb = vot_setup_data('dataDir', opts.dataDir,'version',opts.version) ;
     toc
-    mkdir(opts.expDir) ;
+    if ~exist(opts.expDir,'dir'),mkdir(opts.expDir) ;end
     save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;
 end
 
@@ -60,9 +54,9 @@ end
 % -------------------------------------------------------------------------
 
 [net, info] = cnn_train_dag(net, imdb, getBatch(opts), ...
-                      'expDir', opts.expDir, ...
-                      opts.train, ...
-                      'val', find(imdb.images.set == 2)) ;
+    'expDir', opts.expDir, ...
+    opts.train, ...
+    'val', find(imdb.images.set == 2)) ;
 
 end
 
@@ -76,11 +70,14 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
+
 targets = imdb.images.target(:,:,:,batch);
 images = imdb.images.search(:,:,:,batch) ;
 bboxs = imdb.images.bboxs(1,1,:,batch) ;
 if opts.numGpus > 0
-  images = gpuArray(images) ;
+    targets = gpuArray(targets) ;
+    images = gpuArray(images) ;
+    bboxs = gpuArray(bboxs) ;
 end
 inputs = {'target', targets,'image', images, 'bbox', bboxs} ;
 end
