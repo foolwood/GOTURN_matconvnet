@@ -44,7 +44,7 @@ net.addLayer('pool5', pool5, {'conv5x'}, {'pool5'});
 %% image
 
 conv1_p = dagnn.Conv('size', [11 11 3 96], 'pad', 0, 'stride', 4, 'hasBias', true) ;
-net.addLayer('conv1_p', conv1_p, {'image'}, {'conv1_p'}, {'filters1p', 'biases1p'}) ;
+net.addLayer('conv1_p', conv1_p, {'image'}, {'conv1_p'}, {'filters1', 'biases1'}) ;
 net.addLayer('relu1_p', dagnn.ReLU(), {'conv1_p'}, {'conv1x_p'});
 pool1_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
 net.addLayer('pool1_p', pool1_p, {'conv1x_p'}, {'pool1_p'});
@@ -52,7 +52,7 @@ norm1_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
 net.addLayer('norm1_p', norm1_p, {'pool1_p'}, {'norm1_p'});
 
 conv2_p = dagnn.Conv('size', [5 5 48 256], 'pad', 2, 'stride', 1, 'hasBias', true) ;
-net.addLayer('conv2_p', conv2_p, {'norm1_p'}, {'conv2_p'}, {'filters2p', 'biases2p'}) ;
+net.addLayer('conv2_p', conv2_p, {'norm1_p'}, {'conv2_p'}, {'filters2', 'biases2'}) ;
 net.addLayer('relu2_p', dagnn.ReLU(), {'conv2_p'}, {'conv2x_p'});
 pool2_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
 net.addLayer('pool2_p', pool2_p, {'conv2x_p'}, {'pool2_p'});
@@ -60,15 +60,15 @@ norm2_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
 net.addLayer('norm2_p', norm2_p, {'pool2_p'}, {'norm2_p'});
 
 conv3_p = dagnn.Conv('size', [3 3 256 384], 'pad', 1, 'stride', 1, 'hasBias', true) ;
-net.addLayer('conv3_p', conv3_p, {'norm2_p'}, {'conv3_p'}, {'filters3p', 'biases3p'}) ;
+net.addLayer('conv3_p', conv3_p, {'norm2_p'}, {'conv3_p'}, {'filters3', 'biases3'}) ;
 net.addLayer('relu3_p', dagnn.ReLU(), {'conv3_p'}, {'conv3x_p'});
 
 conv4_p = dagnn.Conv('size', [3 3 192 384], 'pad', 1, 'stride', 1, 'hasBias', true) ;
-net.addLayer('conv4_p', conv4_p, {'conv3x_p'}, {'conv4_p'}, {'filters4p', 'biases4p'}) ;
+net.addLayer('conv4_p', conv4_p, {'conv3x_p'}, {'conv4_p'}, {'filters4', 'biases4'}) ;
 net.addLayer('relu4_p', dagnn.ReLU(), {'conv4_p'}, {'conv4x_p'});
 
 conv5_p = dagnn.Conv('size', [3 3 192 256], 'pad', 1, 'stride', 1, 'hasBias', true) ;
-net.addLayer('conv5_p', conv5_p, {'conv4x_p'}, {'conv5_p'}, {'filters5p', 'biases5p'}) ;
+net.addLayer('conv5_p', conv5_p, {'conv4x_p'}, {'conv5_p'}, {'filters5', 'biases5'}) ;
 net.addLayer('relu5_p', dagnn.ReLU(), {'conv5_p'}, {'conv5x_p'});
 pool5_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
 net.addLayer('pool5_p', pool5_p, {'conv5x_p'}, {'pool5_p'});
@@ -121,21 +121,6 @@ net.params(net.getParamIndex('biases4')).value = params(8).value;
 net.params(net.getParamIndex('filters5')).value = permute(params(9).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases5')).value = params(10).value;
 
-net.params(net.getParamIndex('filters1p')).value = permute(params(1).value(:,:,[3,2,1],:),[2,1,3,4]);
-net.params(net.getParamIndex('biases1p')).value = params(2).value;
-
-net.params(net.getParamIndex('filters2p')).value = permute(params(3).value,[2,1,3,4]);
-net.params(net.getParamIndex('biases2p')).value = params(4).value;
-
-net.params(net.getParamIndex('filters3p')).value = permute(params(5).value,[2,1,3,4]);
-net.params(net.getParamIndex('biases3p')).value = params(6).value;
-
-net.params(net.getParamIndex('filters4p')).value = permute(params(7).value,[2,1,3,4]);
-net.params(net.getParamIndex('biases4p')).value = params(8).value;
-
-net.params(net.getParamIndex('filters5p')).value = permute(params(9).value,[2,1,3,4]);
-net.params(net.getParamIndex('biases5p')).value = params(10).value;
-
 net.params(net.getParamIndex('filters6')).value = permute(params(11).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases6')).value = params(12).value;
 
@@ -148,6 +133,11 @@ net.params(net.getParamIndex('biases7b')).value = params(16).value;
 net.params(net.getParamIndex('filters8')).value = permute(params(17).value,[2,1,3,4]);
 net.params(net.getParamIndex('biases8')).value = params(18).value;
 
+frozenParamIdx = net.getParamIndex({'filters1','biases1',...
+    'filters2','biases2','filters3','biases3',...
+    'filters4','biases4','filters5','biases5'});
+frozenRate = 0;
+[net.params(frozenParamIdx).learningRate] = deal(frozenRate);
 
 %% save
 % netStruct = net.saveobj() ;
