@@ -10,7 +10,7 @@ opts = vl_argparse(opts, varargin) ;
 opts.vot15_dataDir = fullfile(opts.dataDir,'VOT15');
 opts.vot14_dataDir = fullfile(opts.dataDir,'VOT14');
 opts.det16_dataDir = fullfile(opts.dataDir,'DET16');
-
+opts.visualization = false;
 imdb = [];
 % -------------------------------------------------------------------------
 %                                                                      Data
@@ -81,10 +81,18 @@ if any(strcmpi(set_name,'vot15'))
                     raw_img_bank{frame},raw_img_bank{frame+1},...
                     bbox_gt(frame,:),bbox_gt(frame+1,:),opts.size);
                 
-                imdb.images.target(:,:,:,lite_index(now_index)) = target;
-                imdb.images.search(:,:,:,lite_index(now_index)) = image;
+                if(opts.visualization)
+                    subplot(1,2,1);imshow(target);subplot(1,2,2);imshow(image);
+                    disp(bbox_gt_scaled);
+                    drawnow;
+                end
+                
+                imdb.images.target(:,:,:,lite_index(now_index)) = single(target);
+                imdb.images.search(:,:,:,lite_index(now_index)) = single(image);
                 imdb.images.bboxs(1,1,1:4,lite_index(now_index)) =...
                     single(bbox_gt_scaled) ;
+                
+                
             end
             now_index = now_index+1;
         end %%end frame
@@ -117,10 +125,17 @@ if any(strcmpi(set_name,'vot14'))
                     raw_img_bank{frame},raw_img_bank{frame+1},...
                     bbox_gt(frame,:),bbox_gt(frame+1,:),opts.size);
                 
-                imdb.images.target(:,:,:,lite_index(now_index)) = target;
-                imdb.images.search(:,:,:,lite_index(now_index)) = image;
+                if(opts.visualization)
+                    subplot(1,2,1);imshow(target);subplot(1,2,2);imshow(image);
+                    disp(bbox_gt_scaled);
+                    drawnow;
+                end
+                
+                imdb.images.target(:,:,:,lite_index(now_index)) = single(target);
+                imdb.images.search(:,:,:,lite_index(now_index)) = single(image);
                 imdb.images.bboxs(1,1,1:4,lite_index(now_index)) =...
                     single(bbox_gt_scaled) ;
+                
             end
             now_index = now_index+1;
         end %%end frame
