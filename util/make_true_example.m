@@ -11,8 +11,11 @@ curr_prior_tight = bbox_prev;
 bbox_gt_recentered = recenter(bbox_curr,curr_search_location,edge_spacing_x,edge_spacing_y);
 bbox_gt_scaled = scale(bbox_gt_recentered,curr_search_region);
 
-target = cv_resize(target_pad);  %sz for easy get
-image = cv_resize(curr_search_region);
+% target = single(cv_resize(uint8(target_pad)));  %sz for easy get
+% image = single(cv_resize(uint8(curr_search_region)));
+
+target = imresize(target_pad,sz);  %sz for easy get
+image = imresize(curr_search_region,sz);
 end
 
 

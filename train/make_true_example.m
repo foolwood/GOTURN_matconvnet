@@ -12,17 +12,17 @@ bbox_gt_recentered = recenter(bbox_curr,curr_search_location,edge_spacing_x,edge
 bbox_gt_scaled = scale(bbox_gt_recentered,curr_search_region);
 
 target = imresize(target_pad,sz);  %sz for easy get
-image = imresize(target_pad,sz);
+image = imresize(curr_search_region,sz);
 
 % target = cv_resize(target_pad);  %opencv same
-% image = cv_resize(target_pad);
+% image = cv_resize(curr_search_region);
 
 end
 
 
 function bbox_recentered = recenter(bbox_gt,search_location,edge_spacing_x,edge_spacing_y)
 
-bbox_recentered = zeros(1,4);
+bbox_recentered = zeros(1,4,'single');
 bbox_recentered(1) = bbox_gt(1) - search_location(1)+edge_spacing_x;
 bbox_recentered(2) = bbox_gt(2) - search_location(2)+edge_spacing_y;
 bbox_recentered(3) = bbox_gt(3) - search_location(1)+edge_spacing_x;

@@ -71,8 +71,8 @@ end
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
 
-targets = single(imdb.images.target(:,:,:,batch));
-images = single(imdb.images.search(:,:,:,batch));
+targets = imdb.images.target(:,:,:,batch);
+images = imdb.images.search(:,:,:,batch);
 bboxs = imdb.images.bboxs(1,1,:,batch) ;
 if opts.numGpus > 0
     targets = gpuArray(targets) ;

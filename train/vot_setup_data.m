@@ -21,16 +21,16 @@ switch opts.version%vot15:21395 vot14:10188
         set_name = {'vot15','vot14'};
         set = [ones(1,21395) 2*ones(1,10188)];
         imdb.images.set = set;
-        imdb.images.target = zeros([opts.size,3,numel(set)],'uint8');%TODO:use name
-        imdb.images.search = zeros([opts.size,3,numel(set)],'uint8');%TODO:use name
+        imdb.images.target = zeros([opts.size,3,numel(set)],'single');%TODO:use name
+        imdb.images.search = zeros([opts.size,3,numel(set)],'single');%TODO:use name
         imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
         lite_index = 1:numel(set);
     case 2,
         set_name = {'vot15','vot14'};
         set = [ones(1,1000) 2*ones(1,1000)];%1000train_img,1000val_img
         imdb.images.set = set;
-        imdb.images.target = zeros([opts.size,3,numel(set)],'uint8');%TODO:use name
-        imdb.images.search = zeros([opts.size,3,numel(set)],'uint8');%TODO:use name
+        imdb.images.target = zeros([opts.size,3,numel(set)],'single');%TODO:use name
+        imdb.images.search = zeros([opts.size,3,numel(set)],'single');%TODO:use name
         imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
         lite_index = zeros(1,21395+21395);
         lite_index([randperm(21395,sum(set==1)),21395+randperm(10188,sum(set==2))]) = 1:numel(set);
@@ -38,16 +38,16 @@ switch opts.version%vot15:21395 vot14:10188
         set_name = {'det16'};
         set = [ones(1,456567) 2*ones(1,60000)];
         imdb.images.set = set;
-        imdb.images.target = zeros([opts.size,3,numel(set)],'uint8');%TODO:use name
-        imdb.images.search = zeros([opts.size,3,numel(set)],'uint8');%TODO:use name
+        imdb.images.target = zeros([opts.size,3,numel(set)],'single');%TODO:use name
+        imdb.images.search = zeros([opts.size,3,numel(set)],'single');%TODO:use name
         imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
         lite_index = 1:numel(set);
     case 4,
         set_name = {'vot15','vot14','det16'};
         set = [ones(1,456567+21395) 2*ones(1,60000+10188)];
         imdb.images.set = set;
-        imdb.images.target = zeros([opts.size,3,numel(set)],'uint8');%TODO:use name
-        imdb.images.search = zeros([opts.size,3,numel(set)],'uint8');%TODO:use name
+        imdb.images.target = zeros([opts.size,3,numel(set)],'single');%TODO:use name
+        imdb.images.search = zeros([opts.size,3,numel(set)],'single');%TODO:use name
         imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
         lite_index = 1:numel(set);
     otherwise,
@@ -76,14 +76,13 @@ if any(strcmpi(set_name,'vot15'))
         
         for frame = 1:(numel(img_files)-1)
             if(lite_index(now_index))
-                
                 [image,target,bbox_gt_scaled] = ...
                     make_true_example(...
-                    uint8(raw_img_bank{frame}),uint8(raw_img_bank{frame+1}),...
+                    raw_img_bank{frame},raw_img_bank{frame+1},...
                     bbox_gt(frame,:),bbox_gt(frame+1,:),opts.size);
                 
-                imdb.images.target(:,:,:,lite_index(now_index)) = image;
-                imdb.images.search(:,:,:,lite_index(now_index)) = target;
+                imdb.images.target(:,:,:,lite_index(now_index)) = target;
+                imdb.images.search(:,:,:,lite_index(now_index)) = image;
                 imdb.images.bboxs(1,1,1:4,lite_index(now_index)) =...
                     single(bbox_gt_scaled) ;
             end
@@ -115,11 +114,11 @@ if any(strcmpi(set_name,'vot14'))
                 
                 [image,target,bbox_gt_scaled] = ...
                     make_true_example(...
-                    uint8(raw_img_bank{frame}),uint8(raw_img_bank{frame+1}),...
+                    raw_img_bank{frame},raw_img_bank{frame+1},...
                     bbox_gt(frame,:),bbox_gt(frame+1,:),opts.size);
                 
-                imdb.images.target(:,:,:,lite_index(now_index)) = image;
-                imdb.images.search(:,:,:,lite_index(now_index)) = target;
+                imdb.images.target(:,:,:,lite_index(now_index)) = target;
+                imdb.images.search(:,:,:,lite_index(now_index)) = image;
                 imdb.images.bboxs(1,1,1:4,lite_index(now_index)) =...
                     single(bbox_gt_scaled) ;
             end
@@ -129,8 +128,12 @@ if any(strcmpi(set_name,'vot14'))
 end %%end vot14
 
 % dataMean = mean(imdb.images.target(:,:,:,set == 1), 4);
-imdb.images.data_mean(1,1,1:3) = single([123,117,104]);
-imdb.images.size = [227,227];
+dataMean(1,1,1:3) = single([123,117,104]);
+imdb.images.target = bsxfun(@minus, imdb.images.target, dataMean) ;
+imdb.images.search = bsxfun(@minus, imdb.images.search, dataMean) ;
+
+imdb.images.data_mean(1,1,1:3) = dataMean;
+imdb.images.size = opts.size;
 imdb.meta.sets = {'train', 'val'} ;
 end %%end function
 
@@ -157,10 +160,8 @@ function [bb] = get_axis_aligned_BB(region)
 % bb = [cx-w/2,cy-h/2,cx+w/2,cy+h/2]-1;
 bb = [min(region(:,1:2:end),[],2),...
     min(region(:,2:2:end),[],2),...
-    max(region(:,1:2:end),[],2)-...
-    min(region(:,1:2:end),[],2),...
-    max(region(:,2:2:end),[],2)-...
-    min(region(:,2:2:end),[],2)]-1;
+    max(region(:,1:2:end),[],2),...
+    max(region(:,2:2:end),[],2)]-1;
 
 % rect = [cx-w/2,cy-h/2,w,h];
 % rect = [min(region(:,1:2:end),[],2),...
