@@ -1,8 +1,8 @@
 function choose_vot_sequence_track(net_file,base_path,gpu_id,show_visualization)
 if ispc()
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
-    if nargin < 2, base_path = '../data/VOT14/'; end
-    if nargin < 3, gpu_id = [1]; end
+    if nargin < 2, base_path = '../data/VOT15/'; end
+    if nargin < 3, gpu_id = [1,2]; end
     if nargin < 4, show_visualization = 1; end
 else
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end

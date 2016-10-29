@@ -1,4 +1,4 @@
-function [result, time] = tracker(img_files, ground_truth, net, gpu_id, show_visualization)
+function [result_rect, time] = tracker(img_files, ground_truth, net, gpu_id, show_visualization)
 %% speed up 
 %   image_bank = vl_imreadjpeg(img_files,'NumThreads', 4);
 %   image_prev = image_bank{1};
@@ -14,11 +14,10 @@ end
 
 x_minmax = minmax(ground_truth(1,1:2:end));
 y_minmax = minmax(ground_truth(1,2:2:end));
-bbox_gt = [x_minmax(1),y_minmax(1),x_minmax(2),y_minmax(2)]-1;
+bbox_gt = [x_minmax(1),y_minmax(1),x_minmax(2),y_minmax(2)]-1;%zero-index
 
 time = 0;
-result = bsxfun(@times,[bbox_gt(1)+1,...
-    bbox_gt(2)+1,bbox_gt(3)-bbox_gt(1),bbox_gt(4)-bbox_gt(2)],...
+result_rect = bsxfun(@times,bbox_2_rect(bbox_gt),...
     ones(numel(img_files),1));  %to calculate precision
 
 image_prev = imread(img_files{1});
@@ -45,15 +44,13 @@ for frame = 2:numel(img_files),
     bbox_prev_tight = bbox_estimate_uncentered;
     bbox_prev_prior_tight = bbox_estimate_uncentered;%TODO
     
-    result(frame,:) = [bbox_estimate_uncentered(1)+1,...
-                                bbox_estimate_uncentered(2)+1,...
-    bbox_estimate_uncentered(3)-bbox_estimate_uncentered(1),...
-    bbox_estimate_uncentered(4)-bbox_estimate_uncentered(2)];
+    result_rect(frame,:) = bbox_2_rect(bbox_estimate_uncentered);
+    
     time = time + toc;
     
     if show_visualization,
         bbox_estimate_uncentered_cell = [];
-        stop = update_visualization(frame, ground_truth(frame,:),result(frame,:),bbox_estimate_uncentered_cell);
+        stop = update_visualization(frame, ground_truth(frame,:),result_rect(frame,:),bbox_estimate_uncentered_cell);
         if stop, break, end
         drawnow
     end
@@ -62,3 +59,8 @@ end
 
 end %%function
 
+
+function rect = bbox_2_rect(bbox)%%double format output
+rect = double([bbox(:,1)+1,bbox(:,2)+1,bbox(:,3)-bbox(:,1),bbox(:,4)-bbox(:,2)]);
+
+end

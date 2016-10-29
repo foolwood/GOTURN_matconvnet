@@ -1,12 +1,12 @@
 if ispc()
     net_file = '../model/GOTURN_net.mat';
-    base_path = 'E:\data\vot2015/';
-    gpu_id = [2];
+    base_path = '../data/VOT15/';
+    gpu_id = [1,2];
     start_vidoe_num = 1;
     show_visualization = 0;
 else
     net_file = '../model/GOTURN_net.mat';
-    base_path = '../VOT15/';
+    base_path = '../data/VOT15/';
     gpu_id = [];
     start_vidoe_num = 1;
     show_visualization = 0;

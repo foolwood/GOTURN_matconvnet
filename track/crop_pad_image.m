@@ -5,12 +5,12 @@ pad_image_location = compute_corppad_image_location(bbox_tight,image);
 
 image_cols = size(image,2);
 image_rows = size(image,1);
-roi_left = floor(min(pad_image_location(1),image_cols))+1;
-roi_top = floor(min(pad_image_location(2),image_rows))+1;
+roi_left = floor(min(pad_image_location(1),image_cols));
+roi_top = floor(min(pad_image_location(2),image_rows));
 roi_width = floor(min(image_cols,max(1,ceil(pad_image_location(3)-pad_image_location(1)))));
 roi_height = floor(min(image_rows,max(1,ceil(pad_image_location(4)-pad_image_location(2)))));
 
-cropped_target = image(roi_top:roi_top+roi_height-1,roi_left:roi_left+roi_width-1,:);
+cropped_target = image((roi_top+1):(roi_top+roi_height),(roi_left+1):(roi_left+roi_width),:);
 
 output_width = max(ceil(max(1,(bbox_tight(3)-bbox_tight(1))*2)),roi_width);
 output_height = max(ceil(max(1,(bbox_tight(4)-bbox_tight(2))*2)),roi_height);

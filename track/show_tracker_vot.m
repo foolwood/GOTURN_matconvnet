@@ -2,13 +2,13 @@ function show_tracker_vot(net_file,base_path,gpu_id,start_vidoe_num,show_visuali
 
 if ispc()
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
-    if nargin < 2, base_path = 'E:\data\vot2015/'; end
-    if nargin < 3, gpu_id = [2]; end
+    if nargin < 2, base_path = './data/VOT15/'; end
+    if nargin < 3, gpu_id = [1,2]; end
     if nargin < 4, start_vidoe_num = 1; end
     if nargin < 5, show_visualization = 1; end
 else
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
-    if nargin < 2, base_path = '../data/VOT14/'; end
+    if nargin < 2, base_path = '../data/VOT15/'; end
     if nargin < 3, gpu_id = []; end
     if nargin < 4, start_vidoe_num = 1; end
     if nargin < 5, show_visualization = 1; end
