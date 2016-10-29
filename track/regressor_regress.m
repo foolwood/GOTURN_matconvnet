@@ -51,5 +51,5 @@ else
     bbox_estimate = squeeze(net.vars(net.getVarIndex('fc8')).value);
 end
 
-end
+end  %%function
 

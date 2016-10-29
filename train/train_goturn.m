@@ -1,11 +1,11 @@
 function [net, info] = train_goturn(varargin)
 run vl_setupnn
-
+addpath('../util');
 opts.dataDir = fullfile(pwd, '..', 'data') ;
 opts.network = [] ;
 opts.networkName = 'GOTURN';
 opts.numFetchThreads = 12 ;%TODO
-opts.version = 2; % 1 vot 2 vot-lite 3 det 4 full
+opts.version = 1+ismac(); % 1 vot 2 vot-lite 3 det 4 full
 
 opts.expDir = fullfile(pwd, '..', 'data', ['VOT-' opts.networkName]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
@@ -71,8 +71,8 @@ end
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
 
-targets = imdb.images.target(:,:,:,batch);
-images = imdb.images.search(:,:,:,batch) ;
+targets = single(imdb.images.target(:,:,:,batch));
+images = single(imdb.images.search(:,:,:,batch));
 bboxs = imdb.images.bboxs(1,1,:,batch) ;
 if opts.numGpus > 0
     targets = gpuArray(targets) ;

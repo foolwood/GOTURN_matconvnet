@@ -7,12 +7,11 @@ classdef LossL1 < dagnn.Loss
 %
 %     Loss = sum_i f(x_i - x0_i).
 %
-%  where f is the function (following the Faster R-CNN definition):
+%  where f is the function (following the GOTURN definition):
 %
 %   f(delta) = |delta|
 %             
-%  In practice, `x` and `x0` can pack multiple instances as 1 x 1 x C
-%  x N arrays (or simply C x N arrays).
+%  In practice, `x` and `x0` as 1 x 1 x 4 x 1 arrays (x1y1x2y2(0-index)).
 
   methods
     function outputs = forward(obj, inputs, params)

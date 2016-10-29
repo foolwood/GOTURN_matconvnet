@@ -6,7 +6,6 @@ function [result_rect, time] = tracker(img_files, ground_truth, net, gpu_id, sho
 %
 %%
 
-
 close all
 if show_visualization,  %create video interface
     update_visualization = show_video(img_files);
@@ -63,4 +62,4 @@ end %%function
 function rect = bbox_2_rect(bbox)%%double format output
 rect = double([bbox(:,1)+1,bbox(:,2)+1,bbox(:,3)-bbox(:,1),bbox(:,4)-bbox(:,2)]);
 
-end
+end %%function

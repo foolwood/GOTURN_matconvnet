@@ -1,4 +1,6 @@
 function choose_vot_sequence_track(net_file,base_path,gpu_id,show_visualization)
+
+addpath('../util');
 if ispc()
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
     if nargin < 2, base_path = '../data/VOT15/'; end
@@ -34,7 +36,7 @@ net.mode = 'test';
 
 [img_files, ground_truth] = load_video_info_vot(base_path, video);
 [result, time] = tracker(img_files, ground_truth, net, gpu_id, show_visualization);
-fprintf('Video: %d , fps:%3.3f\n',v,size(result,1)/time);
+fprintf('Video: %d , %12s , fps:%3.3f\n',v,video,size(result,1)/time);
 
 end %%function
 
