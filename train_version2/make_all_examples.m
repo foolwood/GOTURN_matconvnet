@@ -4,7 +4,7 @@ function [image,target,bbox_gt_scaled] =...
 n_images = numel(image_prev);
 target = zeros([sz,3,nsample*n_images],'single');  %buff
 image = zeros([sz,3,nsample*n_images],'single');
-bbox_gt_scaled = zeros([1,1,4,nsample],'single');
+bbox_gt_scaled = zeros([1,1,4,nsample*n_images],'single');
 
 for i = 1:n_images
     
