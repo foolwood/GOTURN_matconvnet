@@ -18,8 +18,8 @@ end
 
 trainOpts.learningRate = 1e-3 ;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 1 ;
-trainOpts.batchSize = 25;
+trainOpts.numEpochs = 50;
+trainOpts.batchSize = 5;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
@@ -101,7 +101,7 @@ bbox_curr = imdb.images.bboxs_curr(1,1,:,batch) ;
 % end
 
 [images,targets,bboxs] =...
-    make_all_examples(2,image_prev,image_curr,bbox_prev,bbox_curr,opts.sz);
+    make_all_examples(10,image_prev,image_curr,bbox_prev,bbox_curr,opts.sz);
 images = bsxfun(@minus, images, imdb.images.data_mean);
 targets = bsxfun(@minus, targets, imdb.images.data_mean);
 

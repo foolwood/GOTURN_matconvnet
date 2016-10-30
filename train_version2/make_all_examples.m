@@ -16,7 +16,7 @@ for i = 1:n_images
     
     bbox_gt_recentered = recenter(bbox_curr(:,:,:,i),curr_search_location,edge_spacing_x,edge_spacing_y);
     bbox_gt_scaled(1,1,1:4,1) = scale(bbox_gt_recentered,curr_search_region);
-    image(:,:,:,1) = single(imresize(curr_search_region,sz));
+    image(:,:,:,1+(i-1)*nsample) = single(imresize(curr_search_region,sz));
     
     for n = 2:nsample
         
@@ -30,13 +30,16 @@ for i = 1:n_images
         image(:,:,:,n+(i-1)*nsample) = single(imresize(rand_search_region,sz));
         
 %         disp(n);
-%         subplot(1,2,1)
+%         subplot(1,3,1)
+%         bbox_gt_scaled(1,1,1:4,n+(i-1)*nsample)
 %         rect = bbox_scaled_2_rect(bbox_gt_scaled(1,1,1:4,n+(i-1)*nsample),...
 %             rand_search_region,image_curr{i},rand_search_location,edge_spacing_x,edge_spacing_y);
 %         imshow(uint8(image_curr{i}));
 %         rectangle('Position',rect);
-%         subplot(1,2,2)
-%         imshow(rand_search_region);
+%         subplot(1,3,2)
+%         imshow(uint8(target(:,:,:,(i-1)*nsample+1)));
+%         subplot(1,3,3)
+%         imshow(uint8(image(:,:,:,n+(i-1)*nsample)));
 %         pause();
     end
 end
