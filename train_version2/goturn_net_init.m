@@ -1,4 +1,4 @@
-function net = goturn_vgg_net_init()
+function net = goturn_net_init()
 % input:
 %       -target :227*227*3
 %       -image :227*227*3
