@@ -1,5 +1,6 @@
 function imdb = vot_setup_data(varargin)
 rng('default');
+addpath('../utils');
 % opts = vl_argparse(opts, varargin) ;
 
 opts = [];

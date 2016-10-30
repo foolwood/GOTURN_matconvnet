@@ -1,6 +1,6 @@
 function [net, info] = train_goturn(varargin)
 run vl_setupnn
-addpath('../util');
+addpath('../utils');
 opts.dataDir = fullfile(pwd, '..', 'data') ;
 opts.network = [] ;
 opts.networkName = 'GOTURN';
@@ -57,6 +57,21 @@ end
     'expDir', opts.expDir, ...
     opts.train, ...
     'val', find(imdb.images.set == 2)) ;
+
+% -------------------------------------------------------------------------
+%                                               (pc-1 mac-5 linux-3) Deploy
+% -------------------------------------------------------------------------
+
+net = goturn_deploy(net) ;
+
+modelPath = fullfile(opts.expDir,...
+    ['GOTURN-' num2str(ispc()*1+ismac()*2+isunix()*3),...
+    '-Epochs' num2str(trainOpts.numEpochs) '.mat']);
+
+net_struct = net.saveobj() ;
+save(modelPath, '-struct', 'net_struct') ;
+clear net_struct ;
+
 
 end
 

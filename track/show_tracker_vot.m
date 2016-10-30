@@ -1,5 +1,5 @@
 function show_tracker_vot(net_file,base_path,gpu_id,start_vidoe_num,show_visualization)
-addpath('../util');
+addpath('../utils');
 if ispc()
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
     if nargin < 2, base_path = './data/VOT15/'; end
