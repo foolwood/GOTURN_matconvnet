@@ -19,8 +19,8 @@ classdef LossL1 < dagnn.Loss
       delta = inputs{1} - inputs{2} ;
       absDelta = abs(delta) ;
 
-      % Mutliply by instance weights and sum.
-      outputs{1} = sum(absDelta(:)) ;
+      % 
+      outputs{1} = sum(absDelta(:))/size(inputs{1},4) ;
 
       % Accumulate loss statistics.
       n = obj.numAveraged ;
