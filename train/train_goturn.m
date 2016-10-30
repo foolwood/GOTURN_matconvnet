@@ -5,13 +5,13 @@ opts.dataDir = fullfile(pwd, '..', 'data') ;
 opts.network = [] ;
 opts.networkName = 'GOTURN';
 opts.numFetchThreads = 12 ;%TODO
-opts.version = 1+ismac(); % 1 vot 2 vot-lite 3 det 4 full
+opts.version = 1+ismac();  % 1 [VOT+NUS_PRO] 2 [VOT+NUS_PRO]-lite 3 det16 4 NUS_PRO 5 full
 
-opts.expDir = fullfile(pwd, '..', 'data', ['VOT-' opts.networkName]) ;
+opts.expDir = fullfile(pwd, '..', 'data', ['VOT+NUS_PRO-' opts.networkName]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 if ispc()
-    trainOpts.gpus = [1,2] ;
+    trainOpts.gpus = [2] ;
 else
     trainOpts.gpus = [] ;
 end
