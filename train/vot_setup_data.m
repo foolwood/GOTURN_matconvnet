@@ -2,7 +2,7 @@ function imdb = vot_setup_data(varargin)
 rng('default');
 addpath('../utils');
 % opts = vl_argparse(opts, varargin) ;
-nsample= 1+ispc()*10;
+nsample= 1+ispc()*49;
 opts = [];
 opts.dataDir = '../data';
 opts.expDir = '../data/crop';
@@ -25,21 +25,21 @@ switch opts.version%vot15:21395 vot14:10188
         set = [ones(1,21395*nsample) 2*ones(1,10188*nsample)];
         imdb.images.set = set;
         imdb.images.target = cell([numel(set),1]);%TODO:use name
-        imdb.images.search = cell([numel(set),1]);%TODO:use name
+        imdb.images.image = cell([numel(set),1]);%TODO:use name
         imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
     case 2,
         set_name = {'nus_pro'};
         set = [ones(1,26090*nsample) 2*ones(1,0*nsample)];
         imdb.images.set = set;
         imdb.images.target = cell([numel(set),1]);%TODO:use name
-        imdb.images.search = cell([numel(set),1]);%TODO:use name
+        imdb.images.image = cell([numel(set),1]);%TODO:use name
         imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
     case 3,
         set_name = {'det16'};
         set = [ones(1,456567) 2*ones(1,60000)];
         imdb.images.set = set;
         imdb.images.target = cell([numel(set),1]);%TODO:use name
-        imdb.images.search = cell([numel(set),1]);%TODO:use name
+        imdb.images.image = cell([numel(set),1]);%TODO:use name
         imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
     case 4,
         
