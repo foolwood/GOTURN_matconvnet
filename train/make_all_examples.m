@@ -15,8 +15,8 @@ bbox_gt_recentered = recenter(bbox_curr,curr_search_location,edge_spacing_x,edge
 bbox_gt_scaled(1,1,1:4,1) = scale(bbox_gt_recentered,curr_search_region);
 
 if b_save,
-    imwrite(target_pad,[sprintf(video_frame_expDir,0,1),'.jpg']);
-    imwrite(curr_search_region,[sprintf(video_frame_expDir,1,1),'.jpg']);
+    imwrite(target_pad,[sprintf(video_frame_expDir,0,1),'.jpg'],'Mode','lossless');
+    imwrite(curr_search_region,[sprintf(video_frame_expDir,1,1),'.jpg'],'Mode','lossless');
 end
 
 
@@ -30,8 +30,8 @@ for n = 2:nsample
     bbox_gt_recentered = recenter(bbox_curr,rand_search_location,edge_spacing_x,edge_spacing_y);
     bbox_gt_scaled(1,1,1:4,n) = scale(bbox_gt_recentered,rand_search_region); 
 if b_save,
-    imwrite(target_pad,[sprintf(video_frame_expDir,0,1),'.jpg']);
-    imwrite(rand_search_region,[sprintf(video_frame_expDir,1,n),'.jpg']);
+    imwrite(target_pad,[sprintf(video_frame_expDir,0,1),'.jpg'],'Mode','lossless');
+    imwrite(rand_search_region,[sprintf(video_frame_expDir,1,n),'.jpg'],'Mode','lossless');
 end
 end
 save([sprintf(video_frame_expDir,0,0),'.mat'],'bbox_gt_scaled');
