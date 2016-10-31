@@ -18,7 +18,7 @@ end
 trainOpts.learningRate = 1e-3 ;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 50;
-trainOpts.batchSize = 5;
+trainOpts.batchSize = 50;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
@@ -87,18 +87,18 @@ function inputs = getDagNNBatch(opts, imdb, batch)
 
 if opts.numGpus > 0
     targets = vl_imreadjpeg(imdb.images.target(batch),...
-        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean,'Gpu');
+        'NumThreads',32,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean,'Gpu');
     targets = targets{1};
     images = vl_imreadjpeg(imdb.images.search(batch),...
-        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean,'Gpu');
+        'NumThreads',32,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean,'Gpu');
     images = images{1};
     bboxs = gpuArray(single(imdb.images.bboxs(1,1,1:4,batch)));
 else
     targets = vl_imreadjpeg(imdb.images.target(batch),...
-        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean);
+        'NumThreads',32,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean);
     targets = targets{1};
     images = vl_imreadjpeg(imdb.images.search(batch),...
-        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean);
+        'NumThreads',32,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean);
     images = images{1};
     bboxs = single(imdb.images.bboxs(1,1,1:4,batch));
 end
