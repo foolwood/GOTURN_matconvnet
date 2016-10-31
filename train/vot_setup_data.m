@@ -2,7 +2,7 @@ function imdb = vot_setup_data(varargin)
 rng('default');
 addpath('../utils');
 % opts = vl_argparse(opts, varargin) ;
-nsample= 1;
+nsample= 1+ispc()*49;
 opts = [];
 opts.dataDir = '../data';
 opts.expDir = '../data/crop';
@@ -61,7 +61,7 @@ if any(strcmpi(set_name,'vot15'))
     videos = {dirs.name};
     videos(strcmp('.', videos) | strcmp('..', videos)| ~[dirs.isdir]) = [];
     
-    for  v = 1:numel(videos)
+    parfor  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_vot(vot15_dataDir, video);
         bbox_gt = get_axis_aligned_BB(ground_truth_4xy);
@@ -106,7 +106,7 @@ if any(strcmpi(set_name,'vot14'))
     videos = {dirs.name};
     videos(strcmp('.', videos) | strcmp('..', videos)| ~[dirs.isdir]) = [];
     
-    for  v = 1:numel(videos)
+    parfor  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_vot(vot14_dataDir, video);
         bbox_gt = get_axis_aligned_BB(ground_truth_4xy);
@@ -150,7 +150,7 @@ if any(strcmpi(set_name,'nus_pro'))
     filename = fullfile(nus_pro_dataDir,'seq_list_with_gt.csv');
     videos = importdata(filename);
     
-    for  v = 1:numel(videos)
+    parfor  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_nus_pro(nus_pro_dataDir, video);
         bbox_gt = get_axis_aligned_BB(ground_truth_4xy);
