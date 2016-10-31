@@ -1,22 +1,40 @@
-function [image,target,bbox_gt_scaled] =...
-    make_training_examples(image_prev,image_curr,bbox_prev,bbox_curr,sz)
+function make_all_examples(image_prev,image_curr,bbox_prev,bbox_curr,...
+    nsample,video_frame_expDir)
+
+if nargin < 5,nsample = 1;end
+if nargin < 6,b_save = false;else b_save = true;end
+
+bbox_gt_scaled = zeros(1,1,4,nsample,'single');
 
 target_pad = crop_pad_image(bbox_prev,image_prev);
+target = target_pad;
+
+[curr_search_region,curr_search_location,edge_spacing_x,edge_spacing_y] ...
+    = crop_pad_image(bbox_prev,image_curr);
+
+bbox_gt_recentered = recenter(bbox_curr,curr_search_location,edge_spacing_x,edge_spacing_y);
+bbox_gt_scaled(1,1,1:4,1) = scale(bbox_gt_recentered,curr_search_region);
+
+if b_save,
+    imwrite(curr_search_region,[sprintf(video_frame_expDir,1),'.jpg']);
+    imwrite(target,[sprintf(video_frame_expDir,0),'.jpg']);
+end
 
 
-bbox_curr_shift = shift(image_curr,bbox_curr);
-
-[rand_search_region,rand_search_location,edge_spacing_x,edge_spacing_y] ...
-    = crop_pad_image(bbox_curr_shift,image_curr);
-
-bbox_gt_recentered = recenter(bbox_curr,rand_search_location,edge_spacing_x,edge_spacing_y);
-bbox_gt_scaled = scale(bbox_gt_recentered,rand_search_region);
-
-target = imresize(target_pad,sz);  %sz for easy get
-image = imresize(rand_search_region,sz);
-
-% target = cv_resize(target_pad);  %opencv same
-% image = cv_resize(rand_search_region);
+for n = 2:nsample
+    
+    bbox_curr_shift = shift(image_curr,bbox_curr);
+    
+    [rand_search_region,rand_search_location,edge_spacing_x,edge_spacing_y] ...
+        = crop_pad_image(bbox_curr_shift,image_curr);
+    
+    bbox_gt_recentered = recenter(bbox_curr,rand_search_location,edge_spacing_x,edge_spacing_y);
+    bbox_gt_scaled(1,1,1:4,n) = scale(bbox_gt_recentered,rand_search_region); 
+if b_save,
+    imwrite(rand_search_region,[sprintf(video_frame_expDir,n),'.jpg']);
+end
+end
+save([sprintf(video_frame_expDir,0),'.mat'],'bbox_gt_scaled');
 
 end
 
@@ -45,7 +63,6 @@ bbox_scaled = bbox_scaled*10;                       %kScaleFactor = 10
 end %%function
 
 
-
 function bbox_curr_shift = shift(image_curr,bbox_curr)
 width = bbox_curr(3) - bbox_curr(1);
 height = bbox_curr(4) - bbox_curr(2);
@@ -67,11 +84,11 @@ new_center_y = min(size(image_curr,1)-new_height/2,max(new_height/2,new_y_temp))
 new_center_y = min(max(new_center_y,center_y-height),center_y+height);
 
 bbox_curr_shift = [new_center_x,new_center_y,new_center_x,new_center_y]-...
-    [new_width,new_height,new_width,new_height]/2;
+    [new_width,new_height,-new_width,-new_height]/2;
 
 end %%function
 
 function lp = laplace_rand(lambda)
 u = rand(1)-0.5;
-lp = log(1-abs(2*u))/lambda;
+lp = sign(u)*log(1-abs(2*u))/lambda;
 end %%function

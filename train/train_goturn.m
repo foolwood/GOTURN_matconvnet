@@ -5,8 +5,7 @@ opts.dataDir = fullfile(pwd, '..', 'data') ;
 opts.network = [] ;
 opts.networkName = 'GOTURN';
 opts.numFetchThreads = 12 ;%TODO
-opts.version = 1+ismac();  % 1 [VOT+NUS_PRO] 2 [VOT+NUS_PRO]-lite 3 det16 4 NUS_PRO 5 full
-
+opts.version = 1;  % 1 [VOT+NUS_PRO] 2 NUS_PRO 3 det16
 opts.expDir = fullfile(pwd, '..', 'data', ['VOT+NUS_PRO-' opts.networkName]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
@@ -18,8 +17,8 @@ end
 
 trainOpts.learningRate = 1e-3 ;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 50 ;
-trainOpts.batchSize = 50;
+trainOpts.numEpochs = 50;
+trainOpts.batchSize = 5;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
@@ -78,21 +77,30 @@ end
 % --------------------------------------------------------------------
 function fn = getBatch(opts)
 % --------------------------------------------------------------------
-bopts = struct('numGpus', numel(opts.train.gpus)) ;
+bopts = struct('numGpus', numel(opts.train.gpus),'sz',[227,227]) ;
 fn = @(x,y) getDagNNBatch(bopts,x,y) ;
 end
 
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-
-targets = imdb.images.target(:,:,:,batch);
-images = imdb.images.search(:,:,:,batch);
-bboxs = imdb.images.bboxs(1,1,:,batch) ;
 if opts.numGpus > 0
-    targets = gpuArray(targets) ;
-    images = gpuArray(images) ;
+    targets = vl_imreadjpeg(imdb.images.target(batch),...
+        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean,'Gpu');
+    targets = targets{1};
+    images = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',20,'Resize',opts.sz);
+    images = images{1};
+    bboxs = single(imdb.images.bboxs(1,1,1:4,batch));
     bboxs = gpuArray(bboxs) ;
+else
+    targets = vl_imreadjpeg(imdb.images.target(batch),...
+        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean);
+    targets = targets{1};
+    images = vl_imreadjpeg(imdb.images.search(batch),...
+        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean));
+    images = images{1};
+    bboxs = single(imdb.images.bboxs(1,1,1:4,batch));
 end
+
 inputs = {'target', targets,'image', images, 'bbox', bboxs} ;
 end
