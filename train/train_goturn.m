@@ -10,7 +10,7 @@ opts.expDir = fullfile(pwd, '..', 'data', ['VOT+NUS_PRO-' opts.networkName]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 if ispc()
-    trainOpts.gpus = [2] ;
+    trainOpts.gpus = [] ;
 else
     trainOpts.gpus = [] ;
 end
@@ -84,22 +84,18 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
+targets = vl_imreadjpeg(imdb.images.target(batch),...
+    'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean);
+targets = targets{1};
+images = vl_imreadjpeg(imdb.images.search(batch),...
+    'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean);
+images = images{1};
+bboxs = single(imdb.images.bboxs(1,1,1:4,batch));
+
 if opts.numGpus > 0
-    targets = vl_imreadjpeg(imdb.images.target(batch),...
-        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean,'Gpu');
-    targets = targets{1};
-    images = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',20,'Resize',opts.sz);
-    images = images{1};
-    bboxs = single(imdb.images.bboxs(1,1,1:4,batch));
-    bboxs = gpuArray(bboxs) ;
-else
-    targets = vl_imreadjpeg(imdb.images.target(batch),...
-        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean);
-    targets = targets{1};
-    images = vl_imreadjpeg(imdb.images.search(batch),...
-        'NumThreads',20,'Pack','Resize',opts.sz,'SubtractAverage', imdb.images.data_mean));
-    images = images{1};
-    bboxs = single(imdb.images.bboxs(1,1,1:4,batch));
+    targets = gpuArray(targets);
+    images = gpuArray(images);
+    bboxs = gpuArray(bboxs) ; 
 end
 
 inputs = {'target', targets,'image', images, 'bbox', bboxs} ;
