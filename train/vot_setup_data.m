@@ -2,7 +2,7 @@ function imdb = vot_setup_data(varargin)
 rng('default');
 addpath('../utils');
 % opts = vl_argparse(opts, varargin) ;
-nsample= 1+ispc()*49;
+nsample= 1+ispc()*10;
 opts = [];
 opts.dataDir = '../data';
 opts.expDir = '../data/crop';
@@ -174,7 +174,7 @@ if any(strcmpi(set_name,'nus_pro'))
             imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
             for i = 1:nsample
                 imdb.images.target(now_index+i) = {[sprintf(video_frame_expDir,0,i),'.jpg']};
-                imdb.images.image(now_index+i) = {[sprintf(video_frame_expDir,i,i),'.jpg']};
+                imdb.images.image(now_index+i) = {[sprintf(video_frame_expDir,1,i),'.jpg']};
             end
             now_index = now_index+nsample;
         end %%end frame

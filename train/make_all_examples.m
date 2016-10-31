@@ -34,7 +34,7 @@ if b_save,
     imwrite(rand_search_region,[sprintf(video_frame_expDir,1,n),'.jpg']);
 end
 end
-save([sprintf(video_frame_expDir,0),'.mat'],'bbox_gt_scaled');
+save([sprintf(video_frame_expDir,0,0),'.mat'],'bbox_gt_scaled');
 
 end
 
