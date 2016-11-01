@@ -5,7 +5,7 @@ opts.dataDir = fullfile(pwd, '..', 'data') ;
 opts.network = [] ;
 opts.networkName = 'GOTURN';
 opts.numFetchThreads = 12 ;%TODO
-opts.version = 1;
+opts.version = 3;
 opts.expDir = fullfile(pwd, '..', 'data', ['GOTURN-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 

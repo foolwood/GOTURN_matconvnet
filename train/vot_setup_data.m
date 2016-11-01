@@ -88,7 +88,7 @@ if any(strcmpi(set_name,'vot15'))
     videos = {dirs.name};
     videos(strcmp('.', videos) | strcmp('..', videos)| ~[dirs.isdir]) = [];
     
-    parfor  v = 1:numel(videos)
+    for  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_vot(vot15_dataDir, video);
         bbox_gt = get_bbox(ground_truth_4xy);
@@ -133,7 +133,7 @@ if any(strcmpi(set_name,'vot14'))
     videos = {dirs.name};
     videos(strcmp('.', videos) | strcmp('..', videos)| ~[dirs.isdir]) = [];
     
-    parfor  v = 1:numel(videos)
+    for  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_vot(vot14_dataDir, video);
         bbox_gt = get_bbox(ground_truth_4xy);
@@ -175,7 +175,7 @@ if any(strcmpi(set_name,'nus_pro'))
     filename = fullfile(nus_pro_dataDir,'seq_list_with_gt.csv');
     videos = importdata(filename);
     
-    parfor  v = 1:numel(videos)
+    for  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_nus_pro(nus_pro_dataDir, video);
         bbox_gt = get_bbox(ground_truth_4xy);
