@@ -19,10 +19,10 @@ imdb = [];
 %                                                                 Data Init
 % -------------------------------------------------------------------------
 
-switch opts.version%vot15:21395 vot14:10188
+switch opts.version%vot15:21395 vot14:10188 nus_pro:26090
     case 1,
-        set_name = {'vot15','vot14'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample)];
+        set_name = {'vot15','vot14','nus_pro'};
+        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
         imdb.images.set = set;
         imdb.images.target = cell([numel(set),1]);%TODO:use name
         imdb.images.image = cell([numel(set),1]);%TODO:use name

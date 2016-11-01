@@ -6,7 +6,7 @@ opts.network = [] ;
 opts.networkName = 'GOTURN';
 opts.numFetchThreads = 12 ;%TODO
 opts.version = 1;  % 1 [VOT+NUS_PRO] 2 NUS_PRO 3 det16
-opts.expDir = fullfile(pwd, '..', 'data', ['VOT+NUS_PRO-' opts.networkName]) ;
+opts.expDir = fullfile(pwd, '..', 'data', ['VOT-' opts.networkName]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 if ispc()
