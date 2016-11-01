@@ -63,14 +63,14 @@ function update_visualization_func = show_video(img_files)
             set(rect1_h, 'Visible', 'off');
         end
         
-        %render  bounding box for this frame
-		if isempty(rect1_h),  %create it for the first time
-			rect1_h = plot([0,0,0,0,0], [0,0,0,0,0], 'g','LineWidth',2, 'Parent',axes_h);
+        %render predict bounding box for this frame
+		if isempty(rect2_h),  %create it for the first time
+			rect2_h = plot([0,0,0,0,0], [0,0,0,0,0], 'g','LineWidth',2, 'Parent',axes_h);
 		end
-        if ~isempty(boxes1{frame}),
-            set(rect1_h, 'Visible', 'on', 'XData', boxes1{frame}([1,3,5,7,1]), 'YData', boxes1{frame}([2,4,6,8,2]));
+        if ~isempty(boxes2{frame}),
+            set(rect2_h, 'Visible', 'on', 'XData', boxes2{frame}([1,3,5,7,1]), 'YData', boxes2{frame}([2,4,6,8,2]));
         else
-            set(rect1_h, 'Visible', 'off');
+            set(rect2_h, 'Visible', 'off');
         end
         
 	end

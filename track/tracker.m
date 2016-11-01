@@ -51,7 +51,6 @@ for frame = 2:numel(img_files),
         bbox_estimate_uncentered_cell = [];
         stop = update_visualization(frame, ground_truth(frame,:),result_rect(frame,:),bbox_estimate_uncentered_cell);
         if stop, break, end
-        drawnow
     end
     
 end
