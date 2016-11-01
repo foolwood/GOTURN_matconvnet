@@ -3,10 +3,11 @@ rng('default');
 addpath('../utils');
 opts = [];
 opts.dataDir = '../data';
-opts.expDir = '../data/crop';
 opts.version = 1;
 opts.size = [227,227];
 opts = vl_argparse(opts, varargin) ;
+opts.expDir = ['../data/crop' num2str(opts.version)];
+
 opts.vot15_dataDir = fullfile(opts.dataDir,'VOT15');
 opts.vot14_dataDir = fullfile(opts.dataDir,'VOT14');
 opts.det16_dataDir = fullfile(opts.dataDir,'DET16');
