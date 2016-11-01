@@ -1,12 +1,10 @@
 function imdb = vot_setup_data(varargin)
 rng('default');
 addpath('../utils');
-% opts = vl_argparse(opts, varargin) ;
-nsample= 1+ispc()*49;
 opts = [];
 opts.dataDir = '../data';
 opts.expDir = '../data/crop';
-opts.version = 1;    % 1 [VOT+NUS_PRO] 2 NUS_PRO 3 det16
+opts.version = 1;
 opts.size = [227,227];
 opts = vl_argparse(opts, varargin) ;
 opts.vot15_dataDir = fullfile(opts.dataDir,'VOT15');
@@ -21,32 +19,60 @@ imdb = [];
 
 switch opts.version%vot15:21395 vot14:10188 nus_pro:26090
     case 1,
+        nsample = 1;
+        bbox_mode = 'minmax';%
+        set_name = {'vot15','vot14'};
+        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample)];
+    case 2,
+        nsample = 1;
+        bbox_mode = 'axis_aligned';%
+        set_name = {'vot15','vot14'};
+        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample)];
+    case 3,
+        nsample = 1;
+        bbox_mode = 'axis_aligned';%
         set_name = {'vot15','vot14','nus_pro'};
         set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
-        imdb.images.set = set;
-        imdb.images.target = cell([numel(set),1]);%TODO:use name
-        imdb.images.image = cell([numel(set),1]);%TODO:use name
-        imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
-    case 2,
-        set_name = {'nus_pro'};
-        set = [ones(1,26090*nsample) 2*ones(1,0*nsample)];
-        imdb.images.set = set;
-        imdb.images.target = cell([numel(set),1]);%TODO:use name
-        imdb.images.image = cell([numel(set),1]);%TODO:use name
-        imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
-    case 3,
-        set_name = {'det16'};
-        set = [ones(1,456567) 2*ones(1,60000)];
-        imdb.images.set = set;
-        imdb.images.target = cell([numel(set),1]);%TODO:use name
-        imdb.images.image = cell([numel(set),1]);%TODO:use name
-        imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
     case 4,
-        
+        nsample = 10;
+        bbox_mode = 'axis_aligned';%
+        set_name = {'vot15','vot14','nus_pro'};
+        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+    case 5,
+        nsample = 20;
+        bbox_mode = 'axis_aligned';%
+        set_name = {'vot15','vot14','nus_pro'};
+        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+    case 6,
+        nsample = 30;
+        bbox_mode = 'axis_aligned';%
+        set_name = {'vot15','vot14','nus_pro'};
+        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+    case 7,
+        nsample = 40;
+        bbox_mode = 'axis_aligned';%
+        set_name = {'vot15','vot14','nus_pro'};
+        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+    case 8,
+        nsample = 50;
+        bbox_mode = 'axis_aligned';%
+        set_name = {'vot15','vot14','nus_pro'};
+        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
     otherwise,
         
 end
 
+
+if strcmp(bbox_mode,'axis_aligned')==1
+    get_bbox = @get_axis_aligned_BB;
+else
+    get_bbox = @get_minmax_BB;
+end
+
+imdb.images.set = set;
+imdb.images.target = cell([numel(set),1]);
+imdb.images.image = cell([numel(set),1]);
+imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
 
 now_index = 0;
 expDir = opts.expDir;
@@ -64,7 +90,7 @@ if any(strcmpi(set_name,'vot15'))
     parfor  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_vot(vot15_dataDir, video);
-        bbox_gt = get_axis_aligned_BB(ground_truth_4xy);
+        bbox_gt = get_bbox(ground_truth_4xy);
         im_bank = vl_imreadjpeg(img_files);
         video_expDir = [expDir '/vot15/' video];
         if ~exist(video_expDir,'dir'),mkdir(video_expDir) ;end;
@@ -109,7 +135,7 @@ if any(strcmpi(set_name,'vot14'))
     parfor  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_vot(vot14_dataDir, video);
-        bbox_gt = get_axis_aligned_BB(ground_truth_4xy);
+        bbox_gt = get_bbox(ground_truth_4xy);
         im_bank = vl_imreadjpeg(img_files);
         video_expDir = [expDir '/vot14/' video];
         if ~exist(video_expDir,'dir'),mkdir(video_expDir) ;end;
@@ -153,7 +179,7 @@ if any(strcmpi(set_name,'nus_pro'))
     parfor  v = 1:numel(videos)
         video = videos{v};disp(['      ' video]);
         [img_files, ground_truth_4xy] = load_video_info_nus_pro(nus_pro_dataDir, video);
-        bbox_gt = get_axis_aligned_BB(ground_truth_4xy);
+        bbox_gt = get_bbox(ground_truth_4xy);
         im_bank = vl_imreadjpeg(img_files);
         video_expDir = [expDir '/nus_pro/' video];
         if ~exist(video_expDir,'dir'),mkdir(video_expDir) ;end;

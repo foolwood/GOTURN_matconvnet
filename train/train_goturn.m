@@ -5,8 +5,8 @@ opts.dataDir = fullfile(pwd, '..', 'data') ;
 opts.network = [] ;
 opts.networkName = 'GOTURN';
 opts.numFetchThreads = 12 ;%TODO
-opts.version = 1;  % 1 [VOT+NUS_PRO] 2 NUS_PRO 3 det16
-opts.expDir = fullfile(pwd, '..', 'data', ['VOT-' opts.networkName]) ;
+opts.version = 1;
+opts.expDir = fullfile(pwd, '..', 'data', ['GOTURN-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 if ispc()
