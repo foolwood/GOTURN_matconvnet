@@ -22,42 +22,42 @@ switch opts.version%vot15:21395 vot14:10188 nus_pro:26090
         nsample = 1;
         bbox_mode = 'minmax';%
         set_name = {'vot15','vot14'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample)];
+        set = [ones(1,21395*nsample) 2*ones(1,10188*1)];
     case 2,
         nsample = 1;
         bbox_mode = 'axis_aligned';%
         set_name = {'vot15','vot14'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample)];
+        set = [ones(1,21395*nsample) 2*ones(1,10188*1)];
     case 3,
         nsample = 1;
         bbox_mode = 'axis_aligned';%
         set_name = {'vot15','vot14','nus_pro'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+        set = [ones(1,21395*nsample) 2*ones(1,10188*1) ones(1,26090*nsample)];
     case 4,
         nsample = 10;
         bbox_mode = 'axis_aligned';%
         set_name = {'vot15','vot14','nus_pro'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+        set = [ones(1,21395*nsample) 2*ones(1,10188*1) ones(1,26090*nsample)];
     case 5,
         nsample = 20;
         bbox_mode = 'axis_aligned';%
         set_name = {'vot15','vot14','nus_pro'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+        set = [ones(1,21395*nsample) 2*ones(1,10188*1) ones(1,26090*nsample)];
     case 6,
         nsample = 30;
         bbox_mode = 'axis_aligned';%
         set_name = {'vot15','vot14','nus_pro'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+        set = [ones(1,21395*nsample) 2*ones(1,10188*1) ones(1,26090*nsample)];
     case 7,
         nsample = 40;
         bbox_mode = 'axis_aligned';%
         set_name = {'vot15','vot14','nus_pro'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+        set = [ones(1,21395*nsample) 2*ones(1,10188*1) ones(1,26090*nsample)];
     case 8,
         nsample = 50;
         bbox_mode = 'axis_aligned';%
         set_name = {'vot15','vot14','nus_pro'};
-        set = [ones(1,21395*nsample) 2*ones(1,10188*nsample) ones(1,26090*nsample)];
+        set = [ones(1,21395*nsample) 2*ones(1,10188*1) ones(1,26090*nsample)];
     otherwise,
         
 end
@@ -142,7 +142,7 @@ if any(strcmpi(set_name,'vot14'))
         for frame = 1:(numel(im_bank)-1)
             video_frame_expDir = [video_expDir '/' num2str(frame) '-%d-%d' ];
             make_all_examples(im_bank{frame},im_bank{frame+1},...
-                bbox_gt(frame,:),bbox_gt(frame+1,:),nsample,video_frame_expDir);
+                bbox_gt(frame,:),bbox_gt(frame+1,:),1,video_frame_expDir);
         end %%end frame
     end %%end v
     
@@ -154,12 +154,10 @@ if any(strcmpi(set_name,'vot14'))
         for frame = 1:(numel(img_files)-1)
             video_frame_expDir = [video_expDir '/' num2str(frame) '-%d-%d' ];
             load([sprintf(video_frame_expDir,0,0),'.mat']);
-            imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
-            for i = 1:nsample
-                imdb.images.target(now_index+i) = {[sprintf(video_frame_expDir,0,i),'.jpg']};
-                imdb.images.image(now_index+i) = {[sprintf(video_frame_expDir,1,i),'.jpg']};
-            end
-            now_index = now_index+nsample;
+            imdb.images.bboxs(1,1,1:4,now_index+1) = bbox_gt_scaled;
+            imdb.images.target(now_index+1) = {[sprintf(video_frame_expDir,0,1),'.jpg']};
+            imdb.images.image(now_index+1) = {[sprintf(video_frame_expDir,1,1),'.jpg']};
+            now_index = now_index+1;
         end %%end frame
     end %%end v
 end %%end vot14
