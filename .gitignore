@@ -6,11 +6,6 @@
 *.tmp
 *.value
 *.asv
-
-*.pdf
-
 *.jpeg
-
 *.m~
-
 *.csv
