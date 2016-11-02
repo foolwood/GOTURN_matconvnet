@@ -96,6 +96,42 @@ OS:WIN8.1 MATLAB matconvnet GPU
 [experiment8](experiment/experiment8.pdf)
 
 
+### Experiment（dataset）
+OS:WIN8.1 MATLAB matconvnet GPU
+
+#### opts.version = 9
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  |    SIZE   | 
+|:---------:|:-----:| ------------:| ---------:| ---------:| 
+|  ALOV300+ |  train|  21395       |  1+19     |  51       | 
+|  DET16    |  train|  10188       |  1+19     |  51       | 
+|  VOT14    |  val  |  10188       |  1+0      |  51       | 
+|  OTB50    |  test |  *****       |  1+0      |  51       | 
+
+[experiment10](experiment/experiment10.pdf)
+
+#### opts.version = 10
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  |    SIZE   | 
+|:---------:|:-----:| ------------:| ---------:| ---------:| 
+|  VOT16    |  train|  21395       |  1+19     |  augment  | 
+|  NUS_PRO  |  train|  26090       |  1+19     |  augment  | 
+|  ALOV300+ |  train|  *****       |  1+19     |  augment  | 
+|  TC128    |  train|  *****       |  1+19     |  augment  | 
+|  VOT14    |  val  |  10188       |  1+0      |  augment  | 
+|  OTB50    |  test |  *****       |  1+0      |  augment  | 
+
+[experiment10](experiment/experiment10.pdf)
+
+
+
+
+
+
+
+
 ## Track
 
 ```
