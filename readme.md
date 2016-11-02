@@ -1,5 +1,101 @@
 # GOTURN_CASIA
 
+
+## Train
+
+### Experiment（bbox）
+OS:OSX MATLAB matconvnet cpu
+
+#### opts.version = 1
+**bbox: minmax**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  |
+|:---------:|:-----:| ------------:| ---------:|
+|  VOT15    |  train|  21395       |  1+0      |
+|  VOT14    |  val  |  10188       |  1+0      |
+
+[experiment1](experiment/experiment1.pdf)
+
+#### opts.version = 2
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  |
+|:---------:|:-----:| ------------:| ---------:|
+|  VOT15    |  train|  21395       |  1+0      |
+|  VOT14    |  val  |  10188       |  1+0      |
+
+[experiment2](experiment/experiment2.pdf)
+
+### Experiment（augment）
+OS:WIN8.1 MATLAB matconvnet GPU
+
+#### opts.version = 3
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  | 
+|:---------:|:-----:| ------------:| ---------:| 
+|  VOT15    |  train|  21395       |  1+0      | 
+|  VOT14    |  val  |  10188       |  1+0      |
+|  NUS_PRO  |  train|  26090       |  1+0      |
+
+[experiment3](experiment/experiment3.pdf)
+
+#### opts.version = 4
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  | 
+|:---------:|:-----:| ------------:| ---------:| 
+|  VOT15    |  train|  21395       |  1+9     | 
+|  VOT14    |  val  |  10188       |  1+9     |
+|  NUS_PRO  |  train|  26090       |  1+9     |
+
+[experiment4](experiment/experiment4.pdf)
+
+#### opts.version = 5
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  | 
+|:---------:|:-----:| ------------:| ---------:| 
+|  VOT15    |  train|  21395       |  1+19     | 
+|  VOT14    |  val  |  10188       |  1+19     |
+|  NUS_PRO  |  train|  26090       |  1+19     |
+
+[experiment5](experiment/experiment5.pdf)
+
+#### opts.version = 6
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  | 
+|:---------:|:-----:| ------------:| ---------:| 
+|  VOT15    |  train|  21395       |  1+29     | 
+|  VOT14    |  val  |  10188       |  1+29     |
+|  NUS_PRO  |  train|  26090       |  1+29     |
+
+[experiment6](experiment/experiment6.pdf)
+
+#### opts.version = 7
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  | 
+|:---------:|:-----:| ------------:| ---------:| 
+|  VOT15    |  train|  21395       |  1+39     | 
+|  VOT14    |  val  |  10188       |  1+39     |
+|  NUS_PRO  |  train|  26090       |  1+39     |
+
+[experiment7](experiment/experiment7.pdf)
+
+#### opts.version = 8
+**bbox: axis_aligned**(batch:50)
+
+|  DATASET  |  set  |  image_pair  |  augment  | 
+|:---------:|:-----:| ------------:| ---------:| 
+|  VOT15    |  train|  21395       |  1+49     | 
+|  VOT14    |  val  |  10188       |  1+49     |
+|  NUS_PRO  |  train|  26090       |  1+49     |
+
+[experiment8](experiment/experiment8.pdf)
+
+
 ## Track
 
 ```
@@ -71,90 +167,6 @@ show_tracker_test
 |  Video: 58 |      traffic | fps:16.229 |
 |  Video: 59 |       tunnel | fps:16.492 |
 |  Video: 60 |        wiper | fps:16.077 |
-
-
-## Train
-
-### Experiment（bbox）
-OS:OSX MATLAB matconvnet cpu
-
-
-#### opts.version = 1
-**bbox: minmax**(batch:50)
-
-|  DATASET  |  set  |  image_pair  |  augment  |
-|:---------:|:-----:| ------------:| ---------:|
-|  VOT15    |  train|  21395       |  1+0      |
-|  VOT14    |  val  |  10188       |  1+0      |
-
-[experiment1](experiment/experiment1.pdf)
-
-#### opts.version = 2
-**bbox: axis_aligned**(batch:50)
-
-|  DATASET  |  set  |  image_pair  |  augment  |
-|:---------:|:-----:| ------------:| ---------:|
-|  VOT15    |  train|  21395       |  1+0      |
-|  VOT14    |  val  |  10188       |  1+0      |
-
-
-
-### Experiment（augment）
-OS:WIN8.1 MATLAB matconvnet GPU
-
-#### opts.version = 3
-**bbox: axis_aligned**(batch:50)
-
-|  DATASET  |  set  |  image_pair  |  augment  | 
-|:---------:|:-----:| ------------:| ---------:| 
-|  VOT15    |  train|  21395       |  1+0      | 
-|  VOT14    |  val  |  10188       |  1+0      |
-|  NUS_PRO  |  train|  26090       |  1+0      |
-
-#### opts.version = 4
-**bbox: axis_aligned**(batch:50)
-
-|  DATASET  |  set  |  image_pair  |  augment  | 
-|:---------:|:-----:| ------------:| ---------:| 
-|  VOT15    |  train|  21395       |  1+9     | 
-|  VOT14    |  val  |  10188       |  1+9     |
-|  NUS_PRO  |  train|  26090       |  1+9     |
-
-#### opts.version = 5
-**bbox: axis_aligned**(batch:50)
-
-|  DATASET  |  set  |  image_pair  |  augment  | 
-|:---------:|:-----:| ------------:| ---------:| 
-|  VOT15    |  train|  21395       |  1+19     | 
-|  VOT14    |  val  |  10188       |  1+19     |
-|  NUS_PRO  |  train|  26090       |  1+19     |
-
-#### opts.version = 6
-**bbox: axis_aligned**(batch:50)
-
-|  DATASET  |  set  |  image_pair  |  augment  | 
-|:---------:|:-----:| ------------:| ---------:| 
-|  VOT15    |  train|  21395       |  1+29     | 
-|  VOT14    |  val  |  10188       |  1+29     |
-|  NUS_PRO  |  train|  26090       |  1+29     |
-
-#### opts.version = 7
-**bbox: axis_aligned**(batch:50)
-
-|  DATASET  |  set  |  image_pair  |  augment  | 
-|:---------:|:-----:| ------------:| ---------:| 
-|  VOT15    |  train|  21395       |  1+39     | 
-|  VOT14    |  val  |  10188       |  1+39     |
-|  NUS_PRO  |  train|  26090       |  1+39     |
-
-#### opts.version = 8
-**bbox: axis_aligned**(batch:50)
-
-|  DATASET  |  set  |  image_pair  |  augment  | 
-|:---------:|:-----:| ------------:| ---------:| 
-|  VOT15    |  train|  21395       |  1+49     | 
-|  VOT14    |  val  |  10188       |  1+49     |
-|  NUS_PRO  |  train|  26090       |  1+49     |
 
 
 
