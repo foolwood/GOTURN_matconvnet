@@ -1,15 +1,15 @@
 function [net, info] = train_goturn(varargin)
 run vl_setupnn
 addpath('../utils');
-opts.dataDir = fullfile(pwd, '..', 'data') ;
+opts.dataDir = fullfile('..', 'data') ;
 opts.networkName = 'ALEX';
 opts.numFetchThreads = 12 ;%TODO
 opts.version = 3;
-opts.expDir = fullfile(pwd, '..', 'data', [opts.networkName '-experiment-' num2str(opts.version)]) ;
-opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
+opts.expDir = fullfile('..', 'data', [opts.networkName '-experiment-' num2str(opts.version)]) ;
+opts.imdbPath = fullfile('..', 'data',['GOTURN-experiment-' num2str(opts.version)], 'imdb.mat');
 
 if ispc()
-    trainOpts.gpus = [2] ;
+    trainOpts.gpus = [1] ;
 else
     trainOpts.gpus = [] ;
 end

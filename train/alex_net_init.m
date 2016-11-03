@@ -6,8 +6,136 @@ function net = alex_net_init()
 %       -bbox :4*1*1
 
 run vl_setupnn.m ;
+
 net = dagnn.DagNN() ;
-%% TODO
+net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
+net.meta.normalization.imageSize = [227,227,3];
+%% target
 
-%% save
+conv1 = dagnn.Conv('size', [11 11 3 96], 'pad', 0, 'stride', 4, 'hasBias', true) ;
+net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'filters1', 'biases1'}) ;
+net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
+pool1 = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
+net.addLayer('pool1', pool1, {'conv1x'}, {'pool1'});
+norm1 = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
+net.addLayer('norm1', norm1, {'pool1'}, {'norm1'});
+clear conv1 pool1 norm1
 
+conv2 = dagnn.Conv('size', [5 5 48 256], 'pad', 2, 'stride', 1, 'hasBias', true) ;
+net.addLayer('conv2', conv2, {'norm1'}, {'conv2'}, {'filters2', 'biases2'}) ;
+net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
+pool2 = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
+net.addLayer('pool2', pool2, {'conv2x'}, {'pool2'});
+norm2 = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
+net.addLayer('norm2', norm2, {'pool2'}, {'norm2'});
+clear conv2 pool2 norm2
+
+conv3 = dagnn.Conv('size', [3 3 256 384], 'pad', 1, 'stride', 1, 'hasBias', true) ;
+net.addLayer('conv3', conv3, {'norm2'}, {'conv3'}, {'filters3', 'biases3'}) ;
+net.addLayer('relu3', dagnn.ReLU(), {'conv3'}, {'conv3x'});
+clear conv3
+
+conv4 = dagnn.Conv('size', [3 3 192 384], 'pad', 1, 'stride', 1, 'hasBias', true) ;
+net.addLayer('conv4', conv4, {'conv3x'}, {'conv4'}, {'filters4', 'biases4'}) ;
+net.addLayer('relu4', dagnn.ReLU(), {'conv4'}, {'conv4x'});
+clear conv4
+
+conv5 = dagnn.Conv('size', [3 3 192 256], 'pad', 1, 'stride', 1, 'hasBias', true) ;
+net.addLayer('conv5', conv5, {'conv4x'}, {'conv5'}, {'filters5', 'biases5'}) ;
+net.addLayer('relu5', dagnn.ReLU(), {'conv5'}, {'conv5x'});
+pool5 = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
+net.addLayer('pool5', pool5, {'conv5x'}, {'pool5'});
+clear conv5 pool5
+%% image
+
+conv1_p = dagnn.Conv('size', [11 11 3 96], 'pad', 0, 'stride', 4, 'hasBias', true) ;
+net.addLayer('conv1_p', conv1_p, {'image'}, {'conv1_p'}, {'filters1', 'biases1'}) ;
+net.addLayer('relu1_p', dagnn.ReLU(), {'conv1_p'}, {'conv1x_p'});
+pool1_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
+net.addLayer('pool1_p', pool1_p, {'conv1x_p'}, {'pool1_p'});
+norm1_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
+net.addLayer('norm1_p', norm1_p, {'pool1_p'}, {'norm1_p'});
+clear conv1_p pool1_p norm1_p
+
+conv2_p = dagnn.Conv('size', [5 5 48 256], 'pad', 2, 'stride', 1, 'hasBias', true) ;
+net.addLayer('conv2_p', conv2_p, {'norm1_p'}, {'conv2_p'}, {'filters2', 'biases2'}) ;
+net.addLayer('relu2_p', dagnn.ReLU(), {'conv2_p'}, {'conv2x_p'});
+pool2_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
+net.addLayer('pool2_p', pool2_p, {'conv2x_p'}, {'pool2_p'});
+norm2_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
+net.addLayer('norm2_p', norm2_p, {'pool2_p'}, {'norm2_p'});
+clear conv2_p pool2_p norm2_p
+
+conv3_p = dagnn.Conv('size', [3 3 256 384], 'pad', 1, 'stride', 1, 'hasBias', true) ;
+net.addLayer('conv3_p', conv3_p, {'norm2_p'}, {'conv3_p'}, {'filters3', 'biases3'}) ;
+net.addLayer('relu3_p', dagnn.ReLU(), {'conv3_p'}, {'conv3x_p'});
+clear conv3_p
+
+conv4_p = dagnn.Conv('size', [3 3 192 384], 'pad', 1, 'stride', 1, 'hasBias', true) ;
+net.addLayer('conv4_p', conv4_p, {'conv3x_p'}, {'conv4_p'}, {'filters4', 'biases4'}) ;
+net.addLayer('relu4_p', dagnn.ReLU(), {'conv4_p'}, {'conv4x_p'});
+clear conv4_p
+
+conv5_p = dagnn.Conv('size', [3 3 192 256], 'pad', 1, 'stride', 1, 'hasBias', true) ;
+net.addLayer('conv5_p', conv5_p, {'conv4x_p'}, {'conv5_p'}, {'filters5', 'biases5'}) ;
+net.addLayer('relu5_p', dagnn.ReLU(), {'conv5_p'}, {'conv5x_p'});
+pool5_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
+net.addLayer('pool5_p', pool5_p, {'conv5x_p'}, {'pool5_p'});
+clear conv5_p pool5_p
+%% concat
+
+net.addLayer('concat' , dagnn.Concat(), {'pool5','pool5_p'}, {'pool5_concat'}) ;
+
+%% fc
+
+fc6_new = dagnn.Conv('size', [6 6 512 4096], 'pad', 0, 'stride', 1, 'hasBias', true) ;%need fix
+net.addLayer('fc6_new', fc6_new, {'pool5_concat'}, {'fc6'}, {'filters6', 'biases6'}) ;
+net.addLayer('relu6', dagnn.ReLU(), {'fc6'}, {'fc6x'});
+drop6 = dagnn.DropOut('rate', 0.5);
+net.addLayer('drop6',drop6,{'fc6x'},{'fc6x_dropout'});
+
+fc7_new = dagnn.Conv('size', [1 1 4096 4096], 'pad', 0, 'stride', 1, 'hasBias', true) ;
+net.addLayer('fc7_new', fc7_new, {'fc6x_dropout'}, {'fc7'}, {'filters7', 'biases7'}) ;
+net.addLayer('relu7', dagnn.ReLU(), {'fc7'}, {'fc7x'});
+drop7 = dagnn.DropOut('rate', 0.5);
+net.addLayer('drop7',drop7,{'fc7x'},{'fc7x_dropout'});
+
+fc7_newb = dagnn.Conv('size', [1 1 4096 4096], 'pad', 0, 'stride', 1, 'hasBias', true) ;
+net.addLayer('fc7_newb', fc7_newb, {'fc7x_dropout'}, {'fc7b'}, {'filters7b', 'biases7b'}) ;
+net.addLayer('relu7b', dagnn.ReLU(), {'fc7b'}, {'fc7bx'});
+drop7b = dagnn.DropOut('rate', 0.5);
+net.addLayer('drop7b',drop7b,{'fc7bx'},{'fc7bx_dropout'});
+
+fc8_shapes = dagnn.Conv('size', [1 1 4096 4], 'pad', 0, 'stride', 1, 'hasBias', true) ;
+net.addLayer('fc8_shapes', fc8_shapes, {'fc7bx_dropout'}, {'fc8'}, {'filters8', 'biases8'}) ;
+
+net.addLayer('lossl1', dagnn.LossL1(), {'fc8','bbox'}, 'objective');
+
+%% params
+net.initParams();
+
+%% load alex model from matconvnet
+alex_net = load('../model/imagenet-caffe-alex.mat') ;
+alex_net = dagnn.DagNN.fromSimpleNN(alex_net);
+net.params(net.getParamIndex('filters1')).value = alex_net.params(alex_net.getParamIndex('conv1f')).value;
+net.params(net.getParamIndex('biases1')).value = alex_net.params(alex_net.getParamIndex('conv1b')).value;
+
+net.params(net.getParamIndex('filters2')).value = alex_net.params(alex_net.getParamIndex('conv2f')).value;
+net.params(net.getParamIndex('biases2')).value = alex_net.params(alex_net.getParamIndex('conv2b')).value;
+
+net.params(net.getParamIndex('filters3')).value = alex_net.params(alex_net.getParamIndex('conv3f')).value;
+net.params(net.getParamIndex('biases3')).value = alex_net.params(alex_net.getParamIndex('conv3b')).value;
+
+net.params(net.getParamIndex('filters4')).value = alex_net.params(alex_net.getParamIndex('conv4f')).value;
+net.params(net.getParamIndex('biases4')).value = alex_net.params(alex_net.getParamIndex('conv4b')).value;
+
+net.params(net.getParamIndex('filters5')).value = alex_net.params(alex_net.getParamIndex('conv5f')).value;
+net.params(net.getParamIndex('biases5')).value = alex_net.params(alex_net.getParamIndex('conv5b')).value;
+clear alex_net
+
+frozenParamIdx = net.getParamIndex({'filters1','biases1',...
+    'filters2','biases2','filters3','biases3',...
+    'filters4','biases4','filters5','biases5'});
+frozenRate = 0;
+[net.params(frozenParamIdx).learningRate] = deal(frozenRate);
+net.mode = 'normal';

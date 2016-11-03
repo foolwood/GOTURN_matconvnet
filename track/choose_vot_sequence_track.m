@@ -6,7 +6,7 @@ if ispc()
     if nargin < 3, gpu_id = [1,2]; end
     if nargin < 4, show_visualization = 1; end
 else
-    if nargin < 1, net_file = '../model/GOTURN_exp2.mat'; end%GOTURN-exp[n].mat %GOTURN_net.mat
+    if nargin < 1, net_file = '../model/GOTURN_exp3.mat'; end%GOTURN_exp[n].mat %GOTURN_net.mat
     if nargin < 2, base_path = '../data/VOT14/'; end
     if nargin < 3, gpu_id = []; end
     if nargin < 4, show_visualization = 1; end

@@ -138,6 +138,4 @@ frozenParamIdx = net.getParamIndex({'filters1','biases1',...
     'filters4','biases4','filters5','biases5'});
 frozenRate = 0;
 [net.params(frozenParamIdx).learningRate] = deal(frozenRate);
-
-%% save
-
+net.mode = 'normal';
