@@ -12,15 +12,11 @@ x_min = min(ground_truth(:,2:2:end),[],2);
 y_min = min(ground_truth(:,3:2:end),[],2);
 x_max = max(ground_truth(:,2:2:end),[],2);
 y_max = max(ground_truth(:,3:2:end),[],2);
-ground_truth = [x_min,y_min,x_max,y_max];
+ground_truth = [x_min,y_min,x_min,y_max,x_max,y_max,x_max,y_min];
 
 image_path = [base_path 'imagedata++/' video(1:end-11) '/' video '/'];
-img_files = dir([image_path '*.jpg']);
-if isempty(img_files),
-    img_files = dir([image_path '*.png']);
-    assert(~isempty(img_files), 'No image files to load.')
-end
-img_files = sort({img_files.name});
-img_files = fullfile(video_path,img_files);
+img_files = num2str((frame_index), '%08i.jpg');
+img_files = cellstr(img_files);
+img_files = fullfile(image_path,img_files);
 end
 

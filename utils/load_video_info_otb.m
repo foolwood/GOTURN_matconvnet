@@ -1,7 +1,7 @@
 function [img_files, ground_truth] = load_video_info_otb(base_path, video)
 
 if numel(video) >= 2 && video(end-1) == '-' && ~isnan(str2double(video(end))),
-    suffix = video(end-1:end);  %remember the suffix
+    suffix = ['.' video(end)];  %remember the suffix
     video = video(1:end-2);  %remove it from the video name
 else
     suffix = '';
@@ -29,7 +29,8 @@ frames = {'David', 300, 770;
     'Football1', 1, 74;
     'Freeman3', 1, 460;
     'Freeman4', 1, 283;
-    'Tiger1',6,254};
+    'Tiger1',6,354;
+    'Diving',1,215};
 
 idx = find(strcmpi(video, frames(:,1)));
 

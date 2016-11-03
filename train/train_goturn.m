@@ -2,11 +2,10 @@ function [net, info] = train_goturn(varargin)
 run vl_setupnn
 addpath('../utils');
 opts.dataDir = fullfile(pwd, '..', 'data') ;
-opts.network = [] ;
-opts.networkName = 'GOTURN';
+opts.networkName = 'ALEX';
 opts.numFetchThreads = 12 ;%TODO
 opts.version = 3;
-opts.expDir = fullfile(pwd, '..', 'data', ['GOTURN-experiment-' num2str(opts.version)]) ;
+opts.expDir = fullfile(pwd, '..', 'data', [opts.networkName '-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 if ispc()
@@ -27,11 +26,15 @@ if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
 %                                                             Prepare model
 % -------------------------------------------------------------------------
 
-if isempty(opts.network)
+switch(opts.networkName)
+    case 'GOTURN',
     net = goturn_net_init() ;
-else
-    net = opts.network ;
-    opts.network = [] ;
+    case 'ALEX',
+    net = alex_net_init() ;
+    case 'VGG',
+    net = vgg16_net_init() ;
+    case 'ResNet',
+    net = resnet50_net_init() ;
 end
 
 % -------------------------------------------------------------------------
