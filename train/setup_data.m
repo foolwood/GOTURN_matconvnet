@@ -1,9 +1,10 @@
 function imdb = setup_data(varargin)
 rng('default');
 addpath('../utils');
+addpath('../data/ILSVRC/devkit/evaluation')
 opts = [];
 opts.dataDir = '../data';
-opts.version = 9;
+opts.version = 10;
 opts.size = [227,227];
 opts = vl_argparse(opts, varargin) ;
 opts.expDir = ['../data/crop' num2str(opts.version)];
@@ -21,14 +22,14 @@ opts.tc128_dataDir = fullfile(opts.dataDir,'TC128');
 
 opts.alov300_dataDir = fullfile(opts.dataDir,'ALOV300');
 
-opts.det16_dataDir = fullfile(opts.dataDir,'DET16');
+opts.ilsvrc_dataDir = fullfile(opts.dataDir,'ILSVRC');
 
 opts.visualization = false;
 imdb = [];
 
 % -------------------------------------------------------------------------
-%           vot16:21395 vot15:21395 vot14:10188 vot13:5665 
-%           cvpr2013:29435 tb100:58935 tb50:26922 
+%           vot16:21395 vot15:21395 vot14:10188 vot13:5665
+%           cvpr2013:29435 tb100:58935 tb50:26922
 %           nus_pro:26090 tc128:55217 alov300:16023
 % -------------------------------------------------------------------------
 
@@ -78,8 +79,13 @@ switch opts.version
         bbox_mode = 'axis_aligned';%
         set_name = {'vot16_no_cvpr2013','nus_pro',...
             'tc128_no_cvpr2013','cvpr2013'};
-        set = [ones(1,17695*nsample),ones(1,26090*1),ones(1,30507*nsample)... 
+        set = [ones(1,17695*nsample),ones(1,26090*1),ones(1,30507*nsample)...
             2*ones(1,29435*nsample)];
+    case 10,
+        nsample = 10;
+        bbox_mode = 'axis_aligned';%
+        set_name = {'ilsvrc'};
+        set = [ones(1,100000*nsample)];
     otherwise,
         
 end
@@ -98,6 +104,7 @@ imdb.images.bboxs = zeros(1,1,4,numel(set),'single');
 
 now_index = 0;
 expDir = opts.expDir;
+expDir(expDir == '\') = '/';
 % -------------------------------------------------------------------------
 %                                                           VOT15
 % -------------------------------------------------------------------------
@@ -132,9 +139,9 @@ if any(strcmpi(set_name,'vot15'))
             video_frame_expDir = [video_expDir '/' num2str(frame) '-%d-%d' ];
             load([sprintf(video_frame_expDir,0,0),'.mat']);
             imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
-            for i = 1:nsample
-                imdb.images.target(now_index+i) = {[sprintf(video_frame_expDir,0,i),'.jpg']};
-                imdb.images.image(now_index+i) = {[sprintf(video_frame_expDir,1,i),'.jpg']};
+            for k = 1:nsample
+                imdb.images.target(now_index+k) = {[sprintf(video_frame_expDir,0,k),'.jpg']};
+                imdb.images.image(now_index+k) = {[sprintf(video_frame_expDir,1,k),'.jpg']};
             end
             now_index = now_index+nsample;
         end %%end frame
@@ -218,9 +225,9 @@ if any(strcmpi(set_name,'nus_pro'))
             video_frame_expDir = [video_expDir '/' num2str(frame) '-%d-%d' ];
             load([sprintf(video_frame_expDir,0,0),'.mat']);
             imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
-            for i = 1:nsample
-                imdb.images.target(now_index+i) = {[sprintf(video_frame_expDir,0,i),'.jpg']};
-                imdb.images.image(now_index+i) = {[sprintf(video_frame_expDir,1,i),'.jpg']};
+            for k = 1:nsample
+                imdb.images.target(now_index+k) = {[sprintf(video_frame_expDir,0,k),'.jpg']};
+                imdb.images.image(now_index+k) = {[sprintf(video_frame_expDir,1,k),'.jpg']};
             end
             now_index = now_index+nsample;
         end %%end frame
@@ -269,9 +276,9 @@ if any(strcmpi(set_name,'vot16_no_cvpr2013'))
             video_frame_expDir = [video_expDir '/' num2str(frame) '-%d-%d' ];
             load([sprintf(video_frame_expDir,0,0),'.mat']);
             imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
-            for i = 1:nsample
-                imdb.images.target(now_index+i) = {[sprintf(video_frame_expDir,0,i),'.jpg']};
-                imdb.images.image(now_index+i) = {[sprintf(video_frame_expDir,1,i),'.jpg']};
+            for k = 1:nsample
+                imdb.images.target(now_index+k) = {[sprintf(video_frame_expDir,0,k),'.jpg']};
+                imdb.images.image(now_index+k) = {[sprintf(video_frame_expDir,1,k),'.jpg']};
             end
             now_index = now_index+nsample;
         end %%end frame
@@ -290,11 +297,11 @@ if any(strcmpi(set_name,'tc128_no_cvpr2013'))
     TC128 = {TC128_temp.name};
     TC128(strcmp('.', TC128) | strcmp('..', TC128)| ~[TC128_temp.isdir]) = [];
     tc128_no_cvpr2013_index = zeros(1,numel(TC128));
-    for i = 1:numel(TC128)
-        if numel(strfind(TC128{i},'_ce'))~=0
-            tc128_no_cvpr2013_index(i) = 1;
+    for k = 1:numel(TC128)
+        if numel(strfind(TC128{k},'_ce'))~=0
+            tc128_no_cvpr2013_index(k) = 1;
         else
-            tc128_no_cvpr2013_index(i) = 0;
+            tc128_no_cvpr2013_index(k) = 0;
         end
     end
     videos = TC128(tc128_no_cvpr2013_index==1);
@@ -321,9 +328,9 @@ if any(strcmpi(set_name,'tc128_no_cvpr2013'))
             video_frame_expDir = [video_expDir '/' num2str(frame) '-%d-%d' ];
             load([sprintf(video_frame_expDir,0,0),'.mat']);
             imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
-            for i = 1:nsample
-                imdb.images.target(now_index+i) = {[sprintf(video_frame_expDir,0,i),'.jpg']};
-                imdb.images.image(now_index+i) = {[sprintf(video_frame_expDir,1,i),'.jpg']};
+            for k = 1:nsample
+                imdb.images.target(now_index+k) = {[sprintf(video_frame_expDir,0,k),'.jpg']};
+                imdb.images.image(now_index+k) = {[sprintf(video_frame_expDir,1,k),'.jpg']};
             end
             now_index = now_index+nsample;
         end %%end frame
@@ -363,14 +370,65 @@ if any(strcmpi(set_name,'cvpr2013'))
             video_frame_expDir = [video_expDir '/' num2str(frame) '-%d-%d' ];
             load([sprintf(video_frame_expDir,0,0),'.mat']);
             imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
-            for i = 1:nsample
-                imdb.images.target(now_index+i) = {[sprintf(video_frame_expDir,0,i),'.jpg']};
-                imdb.images.image(now_index+i) = {[sprintf(video_frame_expDir,1,i),'.jpg']};
+            for k = 1:nsample
+                imdb.images.target(now_index+k) = {[sprintf(video_frame_expDir,0,k),'.jpg']};
+                imdb.images.image(now_index+k) = {[sprintf(video_frame_expDir,1,k),'.jpg']};
             end
             now_index = now_index+nsample;
         end %%end frame
     end %%end v
 end %%end cvpr2013
+
+
+
+% -------------------------------------------------------------------------
+%                                                                    ILSVRC
+% -------------------------------------------------------------------------
+if any(strcmpi(set_name,'ilsvrc'))
+    
+    disp('ILSVRC Data(for training):');
+    ilsvrc_dataDir = opts.ilsvrc_dataDir;
+    ILSVRC_train_temp1 = dir(fullfile(ilsvrc_dataDir,...
+        'Data','VID','train','ILSVRC2015_VID_train_*'));
+    ILSVRC_train_temp1 = sort({ILSVRC_train_temp1.name});
+    ILSVRC_train = cell(0);
+    for k = 1:numel(ILSVRC_train_temp1)
+        ILSVRC_train_temp2 = dir(fullfile(ilsvrc_dataDir,...
+            'Data','VID','train',ILSVRC_train_temp1{k},'ILSVRC2015_train_*'));
+        ILSVRC_train_temp2 = sort({ILSVRC_train_temp2.name});
+        ILSVRC_train(end+(1:numel(ILSVRC_train_temp2))) = fullfile(ILSVRC_train_temp1{k},ILSVRC_train_temp2);
+    end
+    ILSVRC_val = dir('../ILSVRC/Data/VID/val/ILSVRC2015_val_*');
+    ILSVRC_val = sort({ILSVRC_val.name});
+    ILSVRC = [ILSVRC_train,ILSVRC_val];
+    videos = ILSVRC;
+    for  v = 1:numel(videos)
+        video = videos{v};video(video == '\') = '/';disp(['      ' video]);
+        [img_files, ~, vid_info] = load_video_info_vid(ilsvrc_dataDir, video);
+        im_bank = vl_imreadjpeg(img_files);
+        video_expDir = [expDir '/ilsvrc/' video];
+        if ~exist(video_expDir,'dir'),mkdir(video_expDir) ;end;
+        for frame = 1:(numel(im_bank)-1)
+            for i = 1:numel(vid_info{frame})
+                for j = 1:numel(vid_info{frame+1})
+                    if (vid_info{frame}.trackid(i) == vid_info{frame+1}.trackid(j))
+                        video_frame_expDir = [video_expDir '/' num2str(frame) '-' num2str(i) '-%d-%d' ];
+                        make_all_examples(im_bank{frame},im_bank{frame+1},...
+                            vid_info{frame}.bbox,vid_info{frame+1}.bbox,nsample,video_frame_expDir);
+                        
+                        load([sprintf(video_frame_expDir,0,0),'.mat']);
+                        imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
+                        for k = 1:nsample
+                            imdb.images.target(now_index+k) = {[sprintf(video_frame_expDir,0,k),'.jpg']};
+                            imdb.images.image(now_index+k) = {[sprintf(video_frame_expDir,1,k),'.jpg']};
+                        end
+                        now_index = now_index+nsample;
+                    end
+                end
+            end
+        end %%end frame
+    end %%end v
+end %%end ilsvrc2016
 
 
 
@@ -380,3 +438,6 @@ imdb.images.data_mean(1,1,1:3) = dataMean;
 imdb.images.size = opts.size;
 imdb.meta.sets = {'train', 'val'} ;
 end %%end function
+
+
+
