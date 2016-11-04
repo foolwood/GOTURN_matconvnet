@@ -9,7 +9,6 @@
 *.jpeg
 *.m~
 *.csv
-
 *.ann
 
 *.fig
@@ -18,20 +17,11 @@
 
 *.ini
 
-data/ALOV300/Results_Maker_1_0_0/Untitled.m
-
-data/ALOV300/Results_Maker_1_0_0/makeListFolderResult.m
-
-data/ALOV300/Results_Maker_1_0_0/buildStructFolder.m
-
-data/ALOV300/Results_Maker_1_0_0/countfolder.m
-
-data/ALOV300/Results_Maker_1_0_0/makeResults.m
-
-data/ALOV300/Results_Maker_1_0_0/titleDataset.m
-
-data/ALOV300/Results_Maker_1_0_0/titleDataset.m
-
-data/ALOV300/Results_Maker_1_0_0/WebDataset.m
-
+*.jpeg
+*.xml
 *.bmp
+*.mp4
+*.mp4
+*.zip
+/data/ILSVRC/*
+*.DS_Store

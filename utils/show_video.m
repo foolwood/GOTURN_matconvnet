@@ -30,9 +30,9 @@ function update_visualization_func = show_video(img_files)
 	im_h = [];
 	rect1_h = [];
     rect2_h = [];
-    rect3_h = cell(10,1);
+    rect3_h = cell(20,1);
     hsv_color = hsv;
-    hsv_color = hsv_color(randperm(64,10),:);
+    hsv_color = hsv_color(randperm(64,20),:);
 	
 	update_visualization_func = @update_visualization;
 	stop_tracker = false;
@@ -70,10 +70,10 @@ function update_visualization_func = show_video(img_files)
         
         for i = 1:20
             if isempty(rect3_h{i}),  %create it for the first time
-                rect3_h{i} = plot([0,0,0,0,0], [0,0,0,0,0],'EdgeColor',hsv_color(i,:),'LineWidth',2, 'Parent',axes_h);
+                rect3_h{i} = plot([0,0,0,0,0], [0,0,0,0,0],'Color',hsv_color(i,:),'LineWidth',2, 'Parent',axes_h);
             end
-            if numel(boxes3{frame})>=i && ~isempty(boxes3{frame}),
-                set(rect3_h{i}, 'Visible', 'on', 'XData', boxes3{frame}([1,3,5,7,1]), 'YData', boxes3{frame}([2,4,6,8,2]));
+            if  ~isempty(boxes3{frame})&& size(boxes3{frame},1)>=i,
+                set(rect3_h{i}, 'Visible', 'on', 'XData', boxes3{frame}(i,[1,3,5,7,1]), 'YData', boxes3{frame}(i,[2,4,6,8,2]));
             else
                 set(rect3_h{i}, 'Visible', 'off');
             end

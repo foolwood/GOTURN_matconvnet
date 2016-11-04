@@ -1,4 +1,5 @@
 addpath('../../utils');
+addpath('../ILSVRC/devkit/evaluation')
 ccc
 
 %% load seqName
@@ -7,12 +8,12 @@ VOT15 = importdata('../VOT15/list.txt');
 VOT14 = importdata('../VOT14/list.txt');
 VOT13 = importdata('../VOT13/list.txt');
 
-CVPR2013 = readtable('../OTB/cvpr13.txt','ReadVariableNames',false);
-CVPR2013 = CVPR2013.Var1;
-TB100 = readtable('../OTB/tb_100.txt','ReadVariableNames',false);
-TB100 = TB100.Var1;
-TB50 = readtable('../OTB/tb_50.txt','ReadVariableNames',false);
-TB50 = TB50.Var1;
+% CVPR2013 = readtable('../OTB/cvpr13.txt','ReadVariableNames',false);
+% CVPR2013 = CVPR2013.Var1;
+% TB100 = readtable('../OTB/tb_100.txt','ReadVariableNames',false);
+% TB100 = TB100.Var1;
+% TB50 = readtable('../OTB/tb_50.txt','ReadVariableNames',false);
+% TB50 = TB50.Var1;
 
 NUS_PRO_all = importdata('../NUS_PRO/seq_list.csv');
 NUS_PRO = importdata('../NUS_PRO/seq_list_with_gt.csv');
@@ -40,10 +41,11 @@ for i = 1:numel(ILSVRC_train_temp1)
    ILSVRC_train_temp2 = dir(['../ILSVRC/Data/VID/train/',...
        ILSVRC_train_temp1{i},'/ILSVRC2015_train_*']);
    ILSVRC_train_temp2 = sort({ILSVRC_train_temp2.name});
-   ILSVRC_train(end+(1:numel(ILSVRC_train_temp2))) = fullfile(ILSVRC_train_temp1,ILSVRC_train_temp2);
+   ILSVRC_train(end+(1:numel(ILSVRC_train_temp2))) = fullfile(ILSVRC_train_temp1{i},ILSVRC_train_temp2);
 end
 ILSVRC_val = dir('../ILSVRC/Data/VID/val/ILSVRC2015_val_*');
-ILSVRC = [ILSVRC_train;ILSVRC_val];
+ILSVRC_val = sort({ILSVRC_val.name});
+ILSVRC = [ILSVRC_train,ILSVRC_val];
 
 clear i filename ILSVRC_train_temp ALOV300_temp1 ALOV300_temp2 ALOV300_temp3 ALOV300_temp4 TC128_temp
 
@@ -250,12 +252,32 @@ visual = true;
 %     end
 % end
 
-base_path = '../ILSVRC/Data/VID/train';
-for i = 1:numel(ILSVRC_train)
+% base_path = '../ILSVRC/';
+% for i = 1:numel(ILSVRC_train)
+%     disp(i)
+%     video = ILSVRC_train{i};
+%     [img_files, ground_truth] = load_video_info_vid(base_path, video);
+%     if numel(img_files)~=numel(ground_truth)
+%         error('miss_matching');
+%     end
+%     ILSVRC_train_frame_num(i) = numel(img_files);
+%     if visual,
+%         close all
+%         update_visualization = show_video(img_files);
+%         for frame = 1:numel(img_files),
+%             stop = update_visualization(frame, [],[],ground_truth{frame});
+%             if stop, break, end
+%             drawnow;
+%         end
+%     end
+% end
+
+base_path = '../ILSVRC/';
+for i = 1:numel(ILSVRC_val)
     disp(i)
-    video = ILSVRC_train{i};
+    video = ILSVRC_val{i};
     [img_files, ground_truth] = load_video_info_vid(base_path, video);
-    if numel(img_files)~=size(ground_truth,1)
+    if numel(img_files)~=numel(ground_truth)
         error('miss_matching');
     end
     ILSVRC_train_frame_num(i) = numel(img_files);
