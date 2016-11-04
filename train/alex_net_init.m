@@ -11,6 +11,7 @@ net = dagnn.DagNN() ;
 net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
 net.meta.normalization.imageSize = [227,227,3];
 %% target
+opts.cudnnWorkspaceLimit = 1024*1024*1204 ; % 1GB
 
 conv1 = dagnn.Conv('size', [11 11 3 96], 'pad', 0, 'stride', 4, 'hasBias', true) ;
 net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'filters1', 'biases1'}) ;
@@ -88,25 +89,25 @@ net.addLayer('concat' , dagnn.Concat(), {'pool5','pool5_p'}, {'pool5_concat'}) ;
 
 %% fc
 
-fc6_new = dagnn.Conv('size', [6 6 512 4096], 'pad', 0, 'stride', 1, 'hasBias', true) ;%need fix
+fc6_new = dagnn.Conv('size', [6 6 512 4096], 'pad', 0, 'stride', 1, 'hasBias', true,'opts',{'cudnnworkspacelimit', opts.cudnnWorkspaceLimit}) ;%need fix
 net.addLayer('fc6_new', fc6_new, {'pool5_concat'}, {'fc6'}, {'filters6', 'biases6'}) ;
 net.addLayer('relu6', dagnn.ReLU(), {'fc6'}, {'fc6x'});
 drop6 = dagnn.DropOut('rate', 0.5);
 net.addLayer('drop6',drop6,{'fc6x'},{'fc6x_dropout'});
 
-fc7_new = dagnn.Conv('size', [1 1 4096 4096], 'pad', 0, 'stride', 1, 'hasBias', true) ;
+fc7_new = dagnn.Conv('size', [1 1 4096 4096], 'pad', 0, 'stride', 1, 'hasBias', true,'opts',{'cudnnworkspacelimit', opts.cudnnWorkspaceLimit}) ;
 net.addLayer('fc7_new', fc7_new, {'fc6x_dropout'}, {'fc7'}, {'filters7', 'biases7'}) ;
 net.addLayer('relu7', dagnn.ReLU(), {'fc7'}, {'fc7x'});
 drop7 = dagnn.DropOut('rate', 0.5);
 net.addLayer('drop7',drop7,{'fc7x'},{'fc7x_dropout'});
 
-fc7_newb = dagnn.Conv('size', [1 1 4096 4096], 'pad', 0, 'stride', 1, 'hasBias', true) ;
+fc7_newb = dagnn.Conv('size', [1 1 4096 4096], 'pad', 0, 'stride', 1, 'hasBias', true,'opts',{'cudnnworkspacelimit', opts.cudnnWorkspaceLimit}) ;
 net.addLayer('fc7_newb', fc7_newb, {'fc7x_dropout'}, {'fc7b'}, {'filters7b', 'biases7b'}) ;
 net.addLayer('relu7b', dagnn.ReLU(), {'fc7b'}, {'fc7bx'});
 drop7b = dagnn.DropOut('rate', 0.5);
 net.addLayer('drop7b',drop7b,{'fc7bx'},{'fc7bx_dropout'});
 
-fc8_shapes = dagnn.Conv('size', [1 1 4096 4], 'pad', 0, 'stride', 1, 'hasBias', true) ;
+fc8_shapes = dagnn.Conv('size', [1 1 4096 4], 'pad', 0, 'stride', 1, 'hasBias', true,'opts',{'cudnnworkspacelimit', opts.cudnnWorkspaceLimit}) ;
 net.addLayer('fc8_shapes', fc8_shapes, {'fc7bx_dropout'}, {'fc8'}, {'filters8', 'biases8'}) ;
 
 net.addLayer('lossl1', dagnn.LossL1(), {'fc8','bbox'}, 'objective');
