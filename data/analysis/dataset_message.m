@@ -339,6 +339,47 @@ TC128_sum_pair = sum(TC128_frame_num - 1);
 ALOV300_sum_pair = sum(ALOV300_frame_num - 1);
 
 
+vot16_no_cvpr2013 = sum(VOT16_frame_num(...
+    [1:3,5:8,10:13,15:37,40:42,44:47,49,52,54:56,58:60]) - 1);
 
+for i = 1:numel(TC128)
+    if numel(strfind(TC128{i},'_ce'))~=0
+        tc128_no_cvpr2013_index(i) = 1;
+    else
+        tc128_no_cvpr2013_index(i) = 0;
+    end     
+end
 
+tc128_no_cvpr2013 = sum(TC128_frame_num(tc128_no_cvpr2013_index==1) - 1);
 
+% base_path = '../OTB/';
+% im_bank = zeros(240,320,3,100,'uint8');
+% A = intersect(CVPR2013,TB100);
+% for i = 1:51
+%     video = A{i};
+%     [img_files, ground_truth] = load_video_info_otb(base_path, video);
+%     im = imread(img_files{1});
+%     if size(im,3) == 1
+%         im = repmat(im,[1,1,3]);
+%     end
+%     im_bank(:,:,:,i) = imresize(im,[240,320]);
+% end
+% B = setxor(CVPR2013,TB100);
+% for i = 1:49
+%     video = B{i};
+%     [img_files, ground_truth] = load_video_info_otb(base_path, video);
+%     im = imread(img_files{1});
+%     if size(im,3) == 1
+%         im = repmat(im,[1,1,3]);
+%     end
+%     im_bank(:,:,:,51+i) = imresize(im,[240,320]);
+% end
+% for i = 1:10
+%     for j = 1:10
+%         m((i-1)*240+(1:240),(j-1)*320+(1:320),:) = im_bank(:,:,:,(i-1)*10+j);
+%     end
+% end
+% imwrite(m,'CVPR2013OTB100.bmp')
+% 
+% 
+% 

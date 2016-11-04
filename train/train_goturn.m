@@ -45,7 +45,7 @@ if exist(opts.imdbPath,'file')
     imdb = load(opts.imdbPath) ;
 else
     tic
-    imdb = vot_setup_data('dataDir', opts.dataDir,'version',opts.version) ;
+    imdb = setup_data('dataDir', opts.dataDir,'version',opts.version) ;
     toc
     if ~exist(opts.expDir,'dir'),mkdir(opts.expDir) ;end
     save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;

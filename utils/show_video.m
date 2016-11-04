@@ -68,16 +68,12 @@ function update_visualization_func = show_video(img_files)
             set(rect1_h, 'Visible', 'off');
         end
         
-
-
-        
-        
-        for i = 1:10
+        for i = 1:20
             if isempty(rect3_h{i}),  %create it for the first time
-                rect3_h{i} = rectangle('Position',[0,0,1,1], 'EdgeColor',hsv_color(i,:), 'Parent',axes_h);
+                rect3_h{i} = plot([0,0,0,0,0], [0,0,0,0,0],'EdgeColor',hsv_color(i,:),'LineWidth',2, 'Parent',axes_h);
             end
             if numel(boxes3{frame})>=i && ~isempty(boxes3{frame}),
-                set(rect3_h{i}, 'Visible', 'on', 'Position', boxes3{frame}{i});
+                set(rect3_h{i}, 'Visible', 'on', 'XData', boxes3{frame}([1,3,5,7,1]), 'YData', boxes3{frame}([2,4,6,8,2]));
             else
                 set(rect3_h{i}, 'Visible', 'off');
             end
