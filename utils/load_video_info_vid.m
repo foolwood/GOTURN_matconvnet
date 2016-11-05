@@ -41,10 +41,11 @@ for i = 1:(numel(filename))
     img_files{i} = fullfile(video_path,[rec.annotation.filename,'.JPEG']);
     if i == 1
         frame_sz = size(imread(img_files{i}));
+        frame_sz = frame_sz([2,1]);
         sz = prod(frame_sz(1:2));
     end
     ground_truth{i} = [];
-    info{i} = [];
+    info{i}.trackid = [];
     if ~isfield(rec.annotation,'object')
         continue;
     end
@@ -57,16 +58,17 @@ for i = 1:(numel(filename))
         bndbox = [bb(1), bb(2), bb(3) - bb(1), bb(4) - bb(2)];
         occluded = str2double(obj.occluded);
         
-        if(c~=17 && c~=23&&c~=26&&c~=29&&...
+        if(c ~= 17 && c ~= 23 && c ~= 26 && c ~= 29 && (~occluded) &&...
                 sqrt(prod(bndbox(3:4))/sz) < 0.7 &&...
                 sqrt(prod(bndbox(3:4))/sz) > 0.1 &&...
                 checkBorders(frame_sz,bndbox) && i ~= numel(filename)),
-            info{i}.trackid(k) = rec.annotation.object(k).trackid;
+            info{i}.trackid(k) = str2double(rec.annotation.object(k).trackid);
             info{i}.class(k) = c;
             info{i}.occluded(k) = occluded;
             info{i}.bbox(k,:) = bb-1;
+            ground_truth{i}(k,:) = [bb(1),bb(2),bb(1),bb(4),bb(3),bb(4),bb(3),bb(2)];
         end
-        ground_truth{i}(k,:) = [bb(1),bb(2),bb(1),bb(4),bb(3),bb(4),bb(3),bb(2)];
+       
         
     end
     

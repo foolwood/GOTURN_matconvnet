@@ -82,7 +82,7 @@ switch opts.version
         set = [ones(1,17695*nsample),ones(1,26090*1),ones(1,30507*nsample)...
             2*ones(1,29435*nsample)];
     case 10,
-        nsample = 10;
+        nsample = 1;
         bbox_mode = 'axis_aligned';%
         set_name = {'ilsvrc'};
         set = [ones(1,100000*nsample)];
@@ -409,12 +409,12 @@ if any(strcmpi(set_name,'ilsvrc'))
         video_expDir = [expDir '/ilsvrc/' video];
         if ~exist(video_expDir,'dir'),mkdir(video_expDir) ;end;
         for frame = 1:(numel(im_bank)-1)
-            for i = 1:numel(vid_info{frame})
-                for j = 1:numel(vid_info{frame+1})
+            for i = 1:numel(vid_info{frame}.trackid)
+                for j = 1:numel(vid_info{frame+1}.trackid)
                     if (vid_info{frame}.trackid(i) == vid_info{frame+1}.trackid(j))
                         video_frame_expDir = [video_expDir '/' num2str(frame) '-' num2str(i) '-%d-%d' ];
                         make_all_examples(im_bank{frame},im_bank{frame+1},...
-                            vid_info{frame}.bbox,vid_info{frame+1}.bbox,nsample,video_frame_expDir);
+                            vid_info{frame}.bbox(i,:),vid_info{frame+1}.bbox(j,:),nsample,video_frame_expDir);
                         
                         load([sprintf(video_frame_expDir,0,0),'.mat']);
                         imdb.images.bboxs(1,1,1:4,now_index+(1:nsample)) = bbox_gt_scaled;
