@@ -241,6 +241,7 @@ net.params(net.getParamIndex('biases8')).value = params(18).value;
 netStruct = net.saveobj() ;
 save('./GOTURN_net.mat', '-struct', 'netStruct') ;
 clear netStruct ;
+ccc
 
 
 %% test

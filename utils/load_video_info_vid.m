@@ -16,10 +16,7 @@ for i = 1:numel(synsets)
     hash.put(synsets{i}, i);
 end
 
-if base_path(end) ~= '/' && base_path(end) ~= '\',
-    base_path(end+1) = '/';
-end
-if numel(strfind(video,'train'))~=0
+if numel(strfind(video,'train')) ~= 0
     filename = dir(fullfile(base_path,'Annotations','VID','train',video,'*.xml'));
     filename = sort({filename.name});
     filename = fullfile(base_path,'Annotations','VID','train',video,filename);
@@ -34,14 +31,14 @@ end
 img_files = cell(0);
 ground_truth = cell(0);
 info = cell(0);
+vaild_index = 1;
 
 for i = 1:(numel(filename))
     rec = VOCreadxml(filename{i});
-    
     img_files{i} = fullfile(video_path,[rec.annotation.filename,'.JPEG']);
     if i == 1
-        frame_sz = size(imread(img_files{i}));
-        frame_sz = frame_sz([2,1]);
+        info = imfinfo(img_files{1});
+        frame_sz = [info.width,info.height];
         sz = prod(frame_sz(1:2));
     end
     ground_truth{i} = [];
@@ -50,7 +47,6 @@ for i = 1:(numel(filename))
         continue;
     end
     for k=1:length(rec.annotation.object)
-        
         obj = rec.annotation.object(k);
         c = get_class2node(hash, obj.name);
         b = obj.bndbox;
@@ -62,21 +58,17 @@ for i = 1:(numel(filename))
                 sqrt(prod(bndbox(3:4))/sz) < 0.7 &&...
                 sqrt(prod(bndbox(3:4))/sz) > 0.1 &&...
                 checkBorders(frame_sz,bndbox) && i ~= numel(filename)),
-            info{i}.trackid(k) = str2double(rec.annotation.object(k).trackid);
-            info{i}.class(k) = c;
-            info{i}.occluded(k) = occluded;
-            info{i}.bbox(k,:) = bb-1;
-            ground_truth{i}(k,:) = [bb(1),bb(2),bb(1),bb(4),bb(3),bb(4),bb(3),bb(2)];
-        end
-       
-        
+            info{i}.trackid(vaild_index) = str2double(rec.annotation.object(k).trackid);
+            info{i}.class(vaild_index) = c;
+            info{i}.occluded(vaild_index) = occluded;
+            info{i}.bbox(vaild_index,:) = bb-1;%zero-index
+            vaild_index = vaild_index+1;
+        end 
+        ground_truth{i}(k,:) = [bb(1),bb(2),bb(1),bb(4),bb(3),bb(4),bb(3),bb(2)];
     end
-    
 end
 
 end
-
-%% Not used at the moment
 
 function ok = checkBorders(frame_sz, object_extent)
     dist_from_border = 0.05 * (object_extent(3) + object_extent(4))/2;

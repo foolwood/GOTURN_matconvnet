@@ -1,4 +1,4 @@
-function [result_rect, time] = tracker(img_files, ground_truth, net, gpu_id, show_visualization)
+function [result_rect, time] = tracker(img_files, ground_truth, net, show_visualization)
 %% speed up 
 %   image_bank = vl_imreadjpeg(img_files,'NumThreads', 4);
 %   image_prev = image_bank{1};
@@ -31,7 +31,7 @@ for frame = 2:numel(img_files),
     [curr_search_region,search_location,edge_spacing_x,...
         edge_spacing_y] = crop_pad_image(bbox_prev_prior_tight,image_curr);
     
-    bbox_estimate = regressor_regress(net,gpu_id,curr_search_region,target_pad);
+    bbox_estimate = regressor_regress(net,curr_search_region,target_pad);
     
     %%unscale the estimation to the real image size
     bbox_estimate_unscaled = bb_unscale(bbox_estimate,curr_search_region);

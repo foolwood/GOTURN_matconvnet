@@ -30,7 +30,7 @@
 % end
 
 
-function [bbox_estimate] = regressor_regress(net,gpu_id,curr_search_image,target_pad)
+function [bbox_estimate] = regressor_regress(net,curr_search_image,target_pad)
 
 try
     target_ = single(cv_resize(target_pad)) ;
@@ -43,7 +43,7 @@ end
 target_ = bsxfun(@minus, target_, net.meta.normalization.averageImage) ;
 image_ = bsxfun(@minus, image_, net.meta.normalization.averageImage) ;
 
-if numel(gpu_id)>0
+if strcmp(net.device,'gpu')
     net.eval({'target', gpuArray(target_),'image', gpuArray(image_)}) ;
     bbox_estimate = squeeze(gather(net.vars(net.getVarIndex('fc8')).value));%TODO
 else

@@ -1,4 +1,5 @@
 addpath('../utils');
+run vl_setupnn;
 if ispc()
     net_file = '../model/GOTURN_net.mat';
     base_path = '../data/VOT15/';

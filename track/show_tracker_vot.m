@@ -1,5 +1,6 @@
 function show_tracker_vot(net_file,base_path,gpu_id,start_vidoe_num,show_visualization)
 addpath('../utils');
+run vl_setupnn;
 if ispc()
     if nargin < 1, net_file = '../model/GOTURN_net.mat'; end
     if nargin < 2, base_path = './data/VOT15/'; end
@@ -30,10 +31,10 @@ dirs = dir(base_path);
 videos = {dirs.name};
 videos(strcmp('.', videos) | strcmp('..', videos)| ~[dirs.isdir]) = [];
 
-for  v = start_vidoe_num:numel(videos)
+for v = start_vidoe_num:numel(videos)
     video = videos{v};
     [img_files, ground_truth] = load_video_info_vot(base_path, video);
-    [result, time] = tracker(img_files, ground_truth, net, gpu_id, show_visualization);
+    [result, time] = tracker(img_files, ground_truth, net, show_visualization);
     fprintf('Video: %d , %12s , fps:%3.3f\n',v,video,size(result,1)/time);
     close all
 end
