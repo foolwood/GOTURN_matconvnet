@@ -36,8 +36,8 @@ for i = 1:(numel(filename))
     rec = VOCreadxml(filename{i});
     img_files{i} = fullfile(video_path,[rec.annotation.filename,'.JPEG']);
     if i == 1
-        info = imfinfo(img_files{1});
-        frame_sz = [info.width,info.height];
+        image_info = imfinfo(img_files{1});
+        frame_sz = [image_info.Width,image_info.Height];
         sz = prod(frame_sz(1:2));
     end
     ground_truth{i} = [];

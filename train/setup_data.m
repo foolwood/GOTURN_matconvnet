@@ -81,9 +81,10 @@ switch opts.version
         set = [ones(1,17695*nsample),ones(1,26090*1),ones(1,30507*nsample)...
             2*ones(1,29435*nsample)];
     case 10,
-        nsample = 1;
+        nsample = 10;
         bbox_mode = 'axis_aligned';%
-        set_name = {'ilsvrc'};
+        set_name = {'vot16','vot15','vot14','vot13','cvpr2013',...
+            'tb100','tb50','nus_pro','tc128','alov300','ilsvrc'};
         set = [ones(1,100000*nsample)];
     otherwise,
         
@@ -469,11 +470,12 @@ if any(strcmpi(set_name,'ilsvrc'))
         [img_files, ~, vid_info] = load_video_info_vid(ilsvrc_dataDir, video);
         im_bank = vl_imreadjpeg(img_files);
         video_expDir = [expDir '/ilsvrc/' video];
-        if ~exist(video_expDir,'dir'),mkdir(video_expDir) ;end;
+        
         for frame = 1:(numel(im_bank)-1)
             for i = 1:numel(vid_info{frame}.trackid)
                 for j = 1:numel(vid_info{frame+1}.trackid)
                     if (vid_info{frame}.trackid(i) == vid_info{frame+1}.trackid(j))
+                        if ~exist(video_expDir,'dir'),mkdir(video_expDir) ;end;
                         video_frame_expDir = [video_expDir '/' num2str(frame) '-' num2str(i) '-%d-%d' ];
                         make_all_examples(im_bank{frame},im_bank{frame+1},...
                             vid_info{frame}.bbox(i,:),vid_info{frame+1}.bbox(j,:),nsample,video_frame_expDir);
