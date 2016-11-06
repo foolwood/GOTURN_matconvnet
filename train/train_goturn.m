@@ -4,7 +4,7 @@ run vl_setupnn;
 opts.dataDir = fullfile('..', 'data') ;
 opts.networkName = 'ALEX';
 opts.numFetchThreads = 12 ;%TODO
-opts.version = 3;
+opts.version = 10;
 opts.expDir = fullfile('..', 'data', [opts.networkName '-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile('..', 'data',['GOTURN-experiment-' num2str(opts.version)], 'imdb.mat');
 

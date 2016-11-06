@@ -31,7 +31,6 @@ end
 img_files = cell(0);
 ground_truth = cell(0);
 info = cell(0);
-vaild_index = 1;
 
 for i = 1:(numel(filename))
     rec = VOCreadxml(filename{i});
@@ -46,6 +45,7 @@ for i = 1:(numel(filename))
     if ~isfield(rec.annotation,'object')
         continue;
     end
+    vaild_index = 1;
     for k=1:length(rec.annotation.object)
         obj = rec.annotation.object(k);
         c = get_class2node(hash, obj.name);
