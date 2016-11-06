@@ -4,6 +4,13 @@ function bbox_gt_scaled = make_all_examples(image_prev,image_curr,bbox_prev,bbox
 if nargin < 5,nsample = 1;end
 if nargin < 6,b_save = false;else b_save = true;end
 
+if(size(image_prev, 3)==1)
+    image_prev = repmat(image_prev, [1 1 3]);
+end
+if(size(image_curr, 3)==1)
+    image_curr = repmat(image_curr, [1 1 3]);
+end
+
 bbox_gt_scaled = zeros([1,1,4,nsample],'single');%buff
 
 target_pad = crop_pad_image(bbox_prev,image_prev);

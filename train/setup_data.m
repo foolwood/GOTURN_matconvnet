@@ -83,7 +83,8 @@ switch opts.version
     case 10,
         nsample = 10;
         bbox_mode = 'axis_aligned';%
-        set_name = {'vot16','vot15','vot14','vot13','cvpr2013',...
+        set_name = {...%'vot16','vot15','vot14','vot13',
+            'cvpr2013',...
             'tb100','tb50','nus_pro','tc128','alov300','ilsvrc'};
         set = [ones(1,100000*nsample)];
     otherwise,
