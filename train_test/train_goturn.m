@@ -14,9 +14,9 @@ else
     trainOpts.gpus = [];
 end
 
-trainOpts.learningRate = 1e-3;
+trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 100;
+trainOpts.numEpochs = 20;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 

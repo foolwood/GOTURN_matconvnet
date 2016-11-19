@@ -20,7 +20,7 @@ classdef LossL1 < dagnn.Loss
       absDelta = abs(delta) ;
 
       % 
-      outputs{1} = sum(absDelta(:));
+      outputs{1} = sum(absDelta(:))/size(delta,4);
 
       % Accumulate loss statistics.
       n = obj.numAveraged ;
@@ -35,7 +35,7 @@ classdef LossL1 < dagnn.Loss
     %  f'(x) = sign(x),                 otherwise.
     %          
 
-      delta = sign(inputs{1} - inputs{2}) ;
+      delta = sign(inputs{1} - inputs{2})/size(inputs{1},4) ;
 
       derInputs = {delta .* derOutputs{1}, []} ;
       derParams = {} ;

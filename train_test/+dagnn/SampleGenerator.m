@@ -16,6 +16,7 @@ classdef SampleGenerator < dagnn.Layer
         Wo = 0;
         No = 1;
         averageImage = reshape(single([123,117,104]),[1,1,3]);
+        visual = true;
     end
     
     properties (Transient)
@@ -68,7 +69,11 @@ classdef SampleGenerator < dagnn.Layer
             image_target_pad = repmat(target_pad,[1,1,1,obj.No]);
             image_search_pad = vl_nnbilinearsampler(image_curr, single(g));
             
-            bbox_gt_scaled = zeros([1,1,4,obj.No],'single');%buff
+            if useGPU,
+                bbox_gt_scaled = gpuArray(zeros([1,1,4,obj.No],'single'));%buff
+            else
+                bbox_gt_scaled = zeros([1,1,4,obj.No],'single');%buff
+            end
             
             curr_search_location = [target_crop_cx-target_crop_w/2,target_crop_cy-target_crop_h/2];
             curr_search_location = reshape(curr_search_location,1,1,2);
@@ -77,7 +82,7 @@ classdef SampleGenerator < dagnn.Layer
             
             %% search
             if obj.No > 1
-                bbox_curr_shift = shift([im_h,im_w],bbox_prev_gt,obj.No-1);
+                bbox_curr_shift = shift([im_h,im_w],bbox_prev_gt,obj.No-1,useGPU);
                 
                 target_crop_w = 2*(bbox_curr_shift(1,1,3,:)-bbox_curr_shift(1,1,1,:));
                 target_crop_h = 2*(bbox_curr_shift(1,1,4,:)-bbox_curr_shift(1,1,2,:));
@@ -105,6 +110,17 @@ classdef SampleGenerator < dagnn.Layer
                 
                 image_search_pad(:,:,:,2:obj.No) = vl_nnbilinearsampler(image_curr, single(g));
             end
+            
+            if obj.visual
+                scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*227+1;
+                
+                for i = 1:obj.No
+                    subplot(4,obj.No/4,i);imshow(uint8(image_search_pad(:,:,:,i)));
+                    rectangle('Position',scaled2rect(gather(bbox_gt_scaled(1,1,1:4,i))),'EdgeColor',[0 1 0]);
+                end
+                drawnow;
+            end
+            
             image_target_pad = bsxfun(@minus,image_target_pad,obj.averageImage);
             image_search_pad = bsxfun(@minus,image_search_pad,obj.averageImage);
             outputs = {bbox_gt_scaled,image_target_pad,image_search_pad};
@@ -118,6 +134,7 @@ classdef SampleGenerator < dagnn.Layer
             obj.No = obj.No;
             obj.xxyy = [];
             obj.averageImage = obj.averageImage;
+            obj.visual = obj.visual;
         end
         
         function obj = reset(obj)
@@ -154,9 +171,12 @@ bbox_scaled(1,1,4,:) = bbox_scaled(1,1,4,:)./Ho;
 bbox_scaled = bbox_scaled*10;                       %kScaleFactor = 10
 end %%function
 
-function bbox_curr_shift = shift(image_sz,bbox_curr,n)
-
-bbox_curr_shift = zeros(1,1,4,n,'single');
+function bbox_curr_shift = shift(image_sz,bbox_curr,n,useGPU)
+if useGPU
+    bbox_curr_shift = gpuArray(zeros(1,1,4,n,'single'));
+else
+    bbox_curr_shift = zeros(1,1,4,n,'single');
+end
 
 width = bbox_curr(3) - bbox_curr(1);
 height = bbox_curr(4) - bbox_curr(2);
@@ -178,8 +198,8 @@ for i = 1:n
     new_center_y = min(image_sz(1)-new_height/2,max(new_height/2,new_y_temp));
     new_center_y = min(max(new_center_y,center_y-height),center_y+height);
     
-    bbox_curr_shift(1,1,1:4,i) = single([new_center_x,new_center_y,new_center_x,new_center_y]-...
-        [new_width,new_height,-new_width,-new_height]/2);
+    bbox_curr_shift(1,1,1:4,i) = [new_center_x,new_center_y,new_center_x,new_center_y]-...
+        [new_width,new_height,-new_width,-new_height]/2;
 end
 end %%function
 
