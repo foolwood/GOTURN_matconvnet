@@ -1,7 +1,7 @@
 %DAGNN.SampleGenerator Generate sample for GOTURN
 % input:
-%     -bbox_prev_gt       1x1x4x1
-%     -bbox_curr_gt       1x1x4x1
+%     -bbox_prev_gt       1x4
+%     -bbox_curr_gt       1x4
 %     -image_prev      HxWx3x1
 %     -image_curr      HxWx3x1
 % output:
@@ -46,10 +46,10 @@ classdef SampleGenerator < dagnn.Layer
             
             
             %% target
-            target_crop_w = 2*(bbox_prev_gt(1,1,3,1)-bbox_prev_gt(1,1,1,1));
-            target_crop_h = 2*(bbox_prev_gt(1,1,4,1)-bbox_prev_gt(1,1,2,1));
-            target_crop_cx = (bbox_prev_gt(1,1,3,1)+bbox_prev_gt(1,1,1,1))/2;
-            target_crop_cy = (bbox_prev_gt(1,1,4,1)+bbox_prev_gt(1,1,2,1))/2;
+            target_crop_w = 2*(bbox_prev_gt(3)-bbox_prev_gt(1));
+            target_crop_h = 2*(bbox_prev_gt(4)-bbox_prev_gt(2));
+            target_crop_cx = (bbox_prev_gt(3)+bbox_prev_gt(1))/2;
+            target_crop_cy = (bbox_prev_gt(4)+bbox_prev_gt(2))/2;
             
             cy_t = (target_crop_cy*2/(im_h-1))-1;
             cx_t = (target_crop_cx*2/(im_w-1))-1;
@@ -57,8 +57,8 @@ classdef SampleGenerator < dagnn.Layer
             h_s = target_crop_h/(im_h-1);
             w_s = target_crop_w/(im_w-1);
             
-            s = reshape([h_s,w_s]', 2,1,1); % x,y scaling
-            t = reshape([cy_t,cx_t]', 2,1,1); % translation
+            s = reshape([h_s;w_s], 2,1,1); % x,y scaling
+            t = reshape([cy_t;cx_t], 2,1,1); % translation
            
             g = bsxfun(@times, obj.xxyy, s); % scale
             g = bsxfun(@plus, g, t); % translate
@@ -75,34 +75,32 @@ classdef SampleGenerator < dagnn.Layer
                 bbox_gt_scaled = zeros([1,1,4,obj.No],'single');%buff
             end
             
-            curr_search_location = [target_crop_cx-target_crop_w/2,target_crop_cy-target_crop_h/2];
-            curr_search_location = reshape(curr_search_location,1,1,2);
-            bbox_gt_recentered = recenter(bbox_curr_gt,curr_search_location);
+            curr_search_location = [target_crop_cx-target_crop_w/2;target_crop_cy-target_crop_h/2];
+            bbox_gt_recentered = recenter(bbox_curr_gt',curr_search_location);
             bbox_gt_scaled(1,1,1:4,1) = scale(bbox_gt_recentered,target_crop_w,target_crop_h);
             
             %% search
             if obj.No > 1
                 bbox_curr_shift = shift([im_h,im_w],bbox_prev_gt,obj.No-1,useGPU);
                 
-                target_crop_w = 2*(bbox_curr_shift(1,1,3,:)-bbox_curr_shift(1,1,1,:));
-                target_crop_h = 2*(bbox_curr_shift(1,1,4,:)-bbox_curr_shift(1,1,2,:));
-                target_crop_cx = (bbox_curr_shift(1,1,3,:)+bbox_curr_shift(1,1,1,:))/2;
-                target_crop_cy = (bbox_curr_shift(1,1,4,:)+bbox_curr_shift(1,1,2,:))/2;
+                target_crop_w = 2*(bbox_curr_shift(3,:)-bbox_curr_shift(1,:));
+                target_crop_h = 2*(bbox_curr_shift(4,:)-bbox_curr_shift(2,:));
+                target_crop_cx = (bbox_curr_shift(1,:)+bbox_curr_shift(3,:))/2;
+                target_crop_cy = (bbox_curr_shift(2,:)+bbox_curr_shift(4,:))/2;
                 
-                rand_search_location = [target_crop_cx-target_crop_w/2,target_crop_cy-target_crop_h/2];
-                rand_search_location = reshape(rand_search_location,1,1,2,[]);
-                bbox_gt_recentered = recenter(bbox_curr_gt,rand_search_location);
+                rand_search_location = [target_crop_cx-target_crop_w/2;target_crop_cy-target_crop_h/2];
+                bbox_gt_recentered = recenter(bbox_curr_gt',rand_search_location);
                 bbox_gt_scaled(1,1,1:4,2:obj.No) = scale(bbox_gt_recentered,target_crop_w,target_crop_h);
                 
                 
-                cy_t = squeeze((target_crop_cy*2/(im_h-1))-1);
-                cx_t = squeeze((target_crop_cx*2/(im_w-1))-1);
+                cy_t = (target_crop_cy*2/(im_h-1))-1;
+                cx_t = (target_crop_cx*2/(im_w-1))-1;
                 
-                h_s = squeeze(target_crop_h/(im_h-1));
-                w_s = squeeze(target_crop_w/(im_w-1));
+                h_s = target_crop_h/(im_h-1);
+                w_s = target_crop_w/(im_w-1);
                 
-                s = reshape([h_s,w_s]', 2,1,[]); % x,y scaling
-                t = reshape([cy_t,cx_t]', 2,1,[]); % translation
+                s = reshape([h_s;w_s], 2,1,[]); % x,y scaling
+                t = reshape([cy_t;cx_t], 2,1,[]); % translation
                 
                 g = bsxfun(@times, obj.xxyy, s); % scale
                 g = bsxfun(@plus, g, t); % translate
@@ -159,23 +157,18 @@ classdef SampleGenerator < dagnn.Layer
 end
 
 function bbox_recentered = recenter(bbox_gt,search_location)
-bbox_recentered= bsxfun(@minus,bbox_gt,search_location(1,1,[1,2,1,2],:));
+bbox_recentered= bsxfun(@minus,bbox_gt,search_location([1,2,1,2],:));
 end %%function
 
 function bbox_scaled = scale(bbox_recentered,Wo,Ho)
-bbox_scaled = bbox_recentered;
-bbox_scaled(1,1,1,:) = bbox_scaled(1,1,1,:)./Wo;
-bbox_scaled(1,1,2,:) = bbox_scaled(1,1,2,:)./Ho;
-bbox_scaled(1,1,3,:) = bbox_scaled(1,1,3,:)./Wo;
-bbox_scaled(1,1,4,:) = bbox_scaled(1,1,4,:)./Ho;
-bbox_scaled = bbox_scaled*10;                       %kScaleFactor = 10
+bbox_scaled = bsxfun(@rdivide,bbox_recentered*10,[Wo;Ho;Wo;Ho]);    %kScaleFactor = 10
 end %%function
 
 function bbox_curr_shift = shift(image_sz,bbox_curr,n,useGPU)
 if useGPU
-    bbox_curr_shift = gpuArray(zeros(1,1,4,n,'single'));
+    bbox_curr_shift = gpuArray(zeros(4,n,'single'));
 else
-    bbox_curr_shift = zeros(1,1,4,n,'single');
+    bbox_curr_shift = zeros(4,n,'single');
 end
 
 width = bbox_curr(3) - bbox_curr(1);
@@ -198,7 +191,7 @@ for i = 1:n
     new_center_y = min(image_sz(1)-new_height/2,max(new_height/2,new_y_temp));
     new_center_y = min(max(new_center_y,center_y-height),center_y+height);
     
-    bbox_curr_shift(1,1,1:4,i) = [new_center_x,new_center_y,new_center_x,new_center_y]-...
+    bbox_curr_shift(1:4,i) = [new_center_x,new_center_y,new_center_x,new_center_y]-...
         [new_width,new_height,-new_width,-new_height]/2;
 end
 end %%function

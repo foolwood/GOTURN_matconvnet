@@ -4,7 +4,7 @@ run vl_setupnn;
 opts.dataDir = fullfile('..', 'data') ;
 opts.networkName = 'GOTURN_crop';
 opts.numFetchThreads = 12 ;%TODO
-opts.version = 1;
+opts.version = 2;
 opts.expDir = fullfile('..', 'data', [opts.networkName '-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
@@ -88,8 +88,8 @@ if opts.numGpus > 0
 %     image_target = gpuArray(imdb.images.target{batch});
 %     image_search = gpuArray(imdb.images.search{batch});
     
-    bbox_target = gpuArray(imdb.images.target_bboxs(1,1,1:4,batch));
-    bbox_search = gpuArray(imdb.images.search_bboxs(1,1,1:4,batch));
+    bbox_target = gpuArray(imdb.images.target_bboxs(batch,1:4));
+    bbox_search = gpuArray(imdb.images.search_bboxs(batch,1:4));
 else
     image_target = vl_imreadjpeg(imdb.images.target(batch),'NumThreads',32);
     image_target = image_target{1};
@@ -98,8 +98,8 @@ else
 
 %     image_target = imdb.images.target{batch};
 %     image_search = imdb.images.search{batch};
-    bbox_target = imdb.images.target_bboxs(1,1,1:4,batch);
-    bbox_search = imdb.images.search_bboxs(1,1,1:4,batch);
+    bbox_target = imdb.images.target_bboxs(batch,1:4);
+    bbox_search = imdb.images.search_bboxs(batch,1:4);
 end
 
 inputs = {'bbox_target',bbox_target,'bbox_search',bbox_search,...
