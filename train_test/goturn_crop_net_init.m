@@ -9,7 +9,7 @@ run vl_setupnn.m ;
 net = dagnn.DagNN() ;
 net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
 
-SampleGenerator = dagnn.SampleGenerator('Ho',227,'Wo',227,'No',20,'averageImage',net.meta.normalization.averageImage,'visual',false);
+SampleGenerator = dagnn.SampleGenerator('Ho',227,'Wo',227,'No',20,'averageImage',net.meta.normalization.averageImage,'visual',true);
 net.addLayer('SampleGenerator',SampleGenerator,...
     {'bbox_target','bbox_search','image_target','image_search'},...
     {'bbox_gt_scaled','image_target_crop','image_search_crop'});

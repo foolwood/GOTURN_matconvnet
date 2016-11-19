@@ -41,6 +41,7 @@ else
     if ~exist(opts.expDir,'dir'),mkdir(opts.expDir);end
     save(opts.imdbPath, '-v7.3', '-struct', 'imdb');
 end
+% imdb = setup_data_ram('dataDir', opts.dataDir,'version',opts.version);
 
 % -------------------------------------------------------------------------
 %                                                                     Learn
@@ -84,15 +85,21 @@ if opts.numGpus > 0
     image_target = image_target{1};
     image_search = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',32,'GPU');
     image_search = image_search{1};
-    bbox_target = gpuArray(single(imdb.images.target_bboxs(1,1,1:4,batch)));
-    bbox_search = gpuArray(single(imdb.images.search_bboxs(1,1,1:4,batch)));
+%     image_target = gpuArray(imdb.images.target{batch});
+%     image_search = gpuArray(imdb.images.search{batch});
+    
+    bbox_target = gpuArray(imdb.images.target_bboxs(1,1,1:4,batch));
+    bbox_search = gpuArray(imdb.images.search_bboxs(1,1,1:4,batch));
 else
     image_target = vl_imreadjpeg(imdb.images.target(batch),'NumThreads',32);
     image_target = image_target{1};
     image_search = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',32);
     image_search = image_search{1};
-    bbox_target = single(imdb.images.target_bboxs(1,1,1:4,batch));
-    bbox_search = single(imdb.images.search_bboxs(1,1,1:4,batch));
+
+%     image_target = imdb.images.target{batch};
+%     image_search = imdb.images.search{batch};
+    bbox_target = imdb.images.target_bboxs(1,1,1:4,batch);
+    bbox_search = imdb.images.search_bboxs(1,1,1:4,batch);
 end
 
 inputs = {'bbox_target',bbox_target,'bbox_search',bbox_search,...
