@@ -1,9 +1,10 @@
 function imdb = setup_data(varargin)
 rng('default');
 addpath('../utils');
+addpath('../data/ILSVRC/devkit/evaluation');
 opts = [];
 opts.dataDir = '../data';
-opts.version = 2;
+opts.version = 3;
 opts = vl_argparse(opts, varargin) ;
 
 opts.vot16_dataDir = fullfile(opts.dataDir,'VOT16');
@@ -12,11 +13,11 @@ opts.otb_dataDir = fullfile(opts.dataDir,'OTB');
 
 opts.nus_pro_dataDir = fullfile(opts.dataDir,'NUS_PRO');
 
-opts.tc128_dataDir = fullfile(opts.dataDir,'Temple-color-128');
+opts.tc128_dataDir = fullfile(opts.dataDir,'TC128');
 
 opts.alov300_dataDir = fullfile(opts.dataDir,'ALOV300');
 
-opts.det_dataDir = fullfile(opts.dataDir,'DET');
+opts.det16_dataDir = fullfile(opts.dataDir,'ILSVRC');
 
 opts.visualization = false;
 imdb = [];
@@ -35,8 +36,13 @@ switch opts.version
         set(randperm(21395,1000)) = 2;
     case 2,
         bbox_mode = 'minmax';%
-        set_name = {'nus_pro','tc128_no_cvpr2013','alov300'};
-        set = ones(1,26090+30507+89351);
+        set_name = {'nus_pro','tc128_no_cvpr2013','alov300','det16'};
+        set = ones(1,26090+30507+89351+478806);
+        set(randperm(numel(set),1000)) = 2;
+    case 3,
+        bbox_mode = 'minmax';%
+        set_name = {'det16'};
+        set = ones(1,478806);
         set(randperm(numel(set),1000)) = 2;
     otherwise,
         
@@ -191,23 +197,22 @@ if any(strcmpi(set_name,'tc128_no_cvpr2013'))
 end %%end tc128_no_cvpr2013
 
 % -------------------------------------------------------------------------
-%                                                                       DET
+%                                                                     DET16
 % -------------------------------------------------------------------------
-% if any(strcmpi(set_name,'det'))
-%     
-%     disp('DET Data:');
-%     det_dataDir = opts.det_dataDir;
-%     
-%     video = videos{v};fprintf('%3d :%30s\n',v,video);
-%     [img_files, ground_truth_4xy] = load_video_info_det(det_dataDir, video);
-%     bbox_gt = get_bbox(ground_truth_4xy);
-%     n_len = numel(img_files);
-%     imdb.images.target(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
-%     imdb.images.search(now_index+(1:(n_len-1))) = img_files(2:n_len);
-%     imdb.images.target_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
-%     imdb.images.search_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
-%     now_index = now_index+(n_len-1);
-% end %%end det
+if any(strcmpi(set_name,'det16'))
+    
+    disp('DET16 Data:');
+    det16_dataDir = opts.det16_dataDir;
+    
+    [img_files, ground_truth_4xy] = load_video_info_det(det16_dataDir);
+    bbox_gt = get_bbox(ground_truth_4xy);
+    n_len = numel(img_files);
+    imdb.images.target(now_index+(1:n_len)) = img_files;
+    imdb.images.search(now_index+(1:n_len)) = img_files;
+    imdb.images.target_bboxs(now_index+(1:n_len),:) = bbox_gt;
+    imdb.images.search_bboxs(now_index+(1:n_len),:) = bbox_gt;
+    now_index = now_index+n_len;
+end %%end det
 
 
 dataMean(1,1,1:3) = single([123,117,104]);
