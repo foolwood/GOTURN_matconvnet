@@ -42,7 +42,6 @@ classdef SampleGenerator < dagnn.Layer
                 image_prev = repmat(image_prev,[1,1,3,1]);
             end
             
-            
             %% target
             target_crop_w = 2*(bbox_prev_gt(1,1,3,1)-bbox_prev_gt(1,1,1,1));
             target_crop_h = 2*(bbox_prev_gt(1,1,4,1)-bbox_prev_gt(1,1,2,1));

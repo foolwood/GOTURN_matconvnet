@@ -15,7 +15,6 @@ classdef SampleGenerator < dagnn.Layer
         Ho = 0;
         Wo = 0;
         No = 1;
-        averageImage = reshape(single([123,117,104]),[1,1,3]);
         visual = true;
     end
     
@@ -23,6 +22,7 @@ classdef SampleGenerator < dagnn.Layer
         % the grid --> this is cached
         % has the size: [2 x HoWo]
         xxyy ;
+        averageImage = reshape(single([123,117,104]),[1,1,3]);
     end
     
     methods
