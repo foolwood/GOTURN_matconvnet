@@ -26,7 +26,7 @@ for i = 1:numel(xml_file)
     if ~isfield(rec.annotation,'object')
         continue;
     end
-    img_files_temp = strrep(xml_file{i},'/Annotations/','Data');
+    img_files_temp = strrep(xml_file{i},'Annotations','Data');
     img_files_temp = strrep(img_files_temp,'xml','JPEG');
     for k=1:length(rec.annotation.object)
         
