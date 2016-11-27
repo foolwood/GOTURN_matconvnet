@@ -1,31 +1,28 @@
 function imdb = setup_data(varargin)
-rng('default');
 addpath('../utils');
 addpath('../data/ILSVRC/devkit/evaluation');
 opts = [];
 opts.dataDir = '../data';
-opts.version = 3;
+opts.version = 4;
 opts = vl_argparse(opts, varargin) ;
 
 opts.vot16_dataDir = fullfile(opts.dataDir,'VOT16');
-
 opts.otb_dataDir = fullfile(opts.dataDir,'OTB');
-
 opts.nus_pro_dataDir = fullfile(opts.dataDir,'NUS_PRO');
-
 opts.tc128_dataDir = fullfile(opts.dataDir,'TC128');
-
 opts.alov300_dataDir = fullfile(opts.dataDir,'ALOV300');
-
 opts.det16_dataDir = fullfile(opts.dataDir,'ILSVRC');
 
 opts.visualization = false;
 imdb = [];
 
 % -------------------------------------------------------------------------
+%   full dataset:
 %           vot16:21395 vot15:21395 vot14:10188 vot13:5665
 %           cvpr2013:29435 tb100:58935 tb50:26922
-%           nus_pro:26090 tc128:55217 alov300:89351
+%           nus_pro:26090 tc128:55217 alov300:89351 det16:478806
+%   Special dataset:
+%           alov300_goturn:15570
 % -------------------------------------------------------------------------
 
 switch opts.version
@@ -39,13 +36,13 @@ switch opts.version
         set_name = {'nus_pro','tc128_no_cvpr2013','alov300','det16'};
         set = ones(1,26090+30507+89351+478806);
         set(randperm(numel(set),1000)) = 2;
-    case 3,
+    case 4,
         bbox_mode = 'minmax';%
-        set_name = {'det16'};
-        set = ones(1,478806);
+        set_name = {'alov300_goturn','det16'};
+        set = ones(1,15570+478806);
         set(randperm(numel(set),1000)) = 2;
     otherwise,
-        
+        error('No such version!'); 
 end
 
 
@@ -195,6 +192,49 @@ if any(strcmpi(set_name,'tc128_no_cvpr2013'))
         now_index = now_index+(n_len-1);
     end %%end v
 end %%end tc128_no_cvpr2013
+
+
+
+
+% -------------------------------------------------------------------------
+%                                                            ALOV300_GOTURN
+% -------------------------------------------------------------------------
+if any(strcmpi(set_name,'alov300_goturn'))
+    
+    disp('ALOV300 Data:');
+    alov300_dataDir = opts.alov300_dataDir;
+    ALOV300_temp1 = dir(fullfile(alov300_dataDir,'imagedata++'));
+    ALOV300_temp2 = {ALOV300_temp1.name};
+    ALOV300_temp2(strcmp('.', ALOV300_temp2) | strcmp('..', ALOV300_temp2)| ~[ALOV300_temp1.isdir]) = [];
+    ALOV300 = cell(0);
+    for i = 1:numel(ALOV300_temp2)
+        ALOV300_temp3 = dir(fullfile(alov300_dataDir,'imagedata++',ALOV300_temp2{i}));
+        ALOV300_temp4 = {ALOV300_temp3.name};
+        ALOV300_temp4(strcmp('.', ALOV300_temp4) | strcmp('..', ALOV300_temp4)| ~[ALOV300_temp3.isdir]) = [];
+        ALOV300(end+(1:numel(ALOV300_temp4))) = ALOV300_temp4;
+    end
+    videos = ALOV300;
+    videos_removed = {'01-Light_video00016','01-Light_video00022',...
+        '01-Light_video00023','02-SurfaceCover_video00012',...
+        '03-Specularity_video00003','03-Specularity_video00012',...
+        '10-LowContrast_video00013'};
+    for i = 1:numel(videos_removed)
+        videos(strcmpi(videos,videos_removed{i})) = [];
+    end
+    
+    for  v = 1:numel(videos)
+        video = videos{v};fprintf('%3d :%30s\n',v,video);
+        [img_files, ground_truth_4xy] = ...
+            load_video_info_alov300(alov300_dataDir, video,false);
+        bbox_gt = get_bbox(ground_truth_4xy);
+        n_len = numel(img_files);
+        imdb.images.target(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
+        imdb.images.search(now_index+(1:(n_len-1))) = img_files(2:n_len);
+        imdb.images.target_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
+        imdb.images.search_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
+        now_index = now_index+(n_len-1);
+    end %%end v
+end %%end alov300
 
 % -------------------------------------------------------------------------
 %                                                                     DET16

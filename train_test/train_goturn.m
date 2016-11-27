@@ -2,14 +2,14 @@ function [net, info] = train_goturn(varargin)
 addpath('../utils');
 run vl_setupnn;
 opts.dataDir = fullfile('..', 'data') ;
-opts.networkName = 'GOTURN_crop';
+opts.networkName = 'GOTURN';
 opts.numFetchThreads = 12 ;%TODO
-opts.version = 2;
+opts.version = 1;
 opts.expDir = fullfile('..', 'data', [opts.networkName '-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 if ispc()
-    trainOpts.gpus = [1];
+    trainOpts.gpus = [2];
 else
     trainOpts.gpus = [];
 end
@@ -26,7 +26,7 @@ if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
 %                                                             Prepare model
 % -------------------------------------------------------------------------
 
-net = goturn_crop_net_init();
+net = goturn_net_init();
 
 % -------------------------------------------------------------------------
 %                                                              Prepare data
@@ -41,7 +41,6 @@ else
     if ~exist(opts.expDir,'dir'),mkdir(opts.expDir);end
     save(opts.imdbPath, '-v7.3', '-struct', 'imdb');
 end
-% imdb = setup_data_ram('dataDir', opts.dataDir,'version',opts.version);
 
 % -------------------------------------------------------------------------
 %                                                                     Learn
@@ -53,19 +52,16 @@ end
     'val', find(imdb.images.set == 2));
 
 % -------------------------------------------------------------------------
-%                                               (pc-1 mac-5 linux-3) Deploy
+%                                                                   Deploy
 % -------------------------------------------------------------------------
 
 net = goturn_deploy(net);
 
-modelPath = fullfile(opts.expDir,...
-    ['GOTURN-' num2str(ispc()*1+ismac()*2+isunix()*3),...
-    '-Epochs' num2str(trainOpts.numEpochs) '.mat']);
+modelPath = fullfile(opts.expDir,'GOTURN_trained.mat');
 
 net_struct = net.saveobj();
 save(modelPath, '-struct', 'net_struct');
 clear net_struct;
-
 
 end
 
@@ -85,9 +81,6 @@ if opts.numGpus > 0
     image_target = image_target{1};
     image_search = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',32,'GPU');
     image_search = image_search{1};
-%     image_target = gpuArray(imdb.images.target{batch});
-%     image_search = gpuArray(imdb.images.search{batch});
-    
     bbox_target = gpuArray(imdb.images.target_bboxs(batch,1:4));
     bbox_search = gpuArray(imdb.images.search_bboxs(batch,1:4));
 else
@@ -95,9 +88,6 @@ else
     image_target = image_target{1};
     image_search = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',32);
     image_search = image_search{1};
-
-%     image_target = imdb.images.target{batch};
-%     image_search = imdb.images.search{batch};
     bbox_target = imdb.images.target_bboxs(batch,1:4);
     bbox_search = imdb.images.search_bboxs(batch,1:4);
 end

@@ -3,7 +3,7 @@ classdef LossL1 < dagnn.Loss
 %  `LossL1.forward({x, x0})` computes the  L1 distance 
 %  between `x` and `x0`.
 %
-%  Here the smooth L1 loss between two vectors is defined as:
+%  Here the L1 loss between two vectors is defined as:
 %
 %     Loss = sum_i f(x_i - x0_i).
 %
@@ -18,8 +18,7 @@ classdef LossL1 < dagnn.Loss
       
       delta = inputs{1} - inputs{2} ;
       absDelta = abs(delta) ;
-
-      % 
+      
       outputs{1} = sum(absDelta(:))/size(delta,4);
 
       % Accumulate loss statistics.

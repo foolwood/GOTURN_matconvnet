@@ -110,7 +110,7 @@ classdef SampleGenerator < dagnn.Layer
             end
             
             if obj.visual
-                scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*227+1;
+                scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*226+1;
                 
                 for i = 1:obj.No
                     subplot(4,obj.No/4,i);imshow(uint8(image_search_pad(:,:,:,i)));
