@@ -34,9 +34,9 @@ classdef LossL1 < dagnn.Loss
     %  f'(x) = sign(x),                 otherwise.
     %          
 
-      delta = sign(inputs{1} - inputs{2})/size(inputs{1},4) ;
+      delta = sign(inputs{1} - inputs{2})/size(inputs{1},4);
 
-      derInputs = {delta .* derOutputs{1}, []} ;
+      derInputs = {delta .* derOutputs{1}, []};
       derParams = {} ;
     end
 

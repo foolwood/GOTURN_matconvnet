@@ -1,10 +1,5 @@
 function goturn_vot
-% ncc VOT integration example
-% 
-% This function is an example of tracker integration into the toolkit.
-% The implemented tracker is a very simple NCC tracker that is also used as
-% the baseline tracker for challenge entries.
-%
+% goturn VOT
 
 % *************************************************************
 % VOT: Always call exit command at the end to terminate Matlab!

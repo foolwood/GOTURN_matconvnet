@@ -1,13 +1,13 @@
 %DAGNN.SampleGenerator Generate sample for GOTURN
 % input:
-%     -bbox_prev_gt       1x4
-%     -bbox_curr_gt       1x4
-%     -image_prev      HxWx3x1
-%     -image_curr      HxWx3x1
+%     -bbox_prev_gt       Nx4
+%     -bbox_curr_gt       Nx4
+%     -image_prev      HxWx3xN
+%     -image_curr      HxWx3xN
 % output:
-%     -bbox_gt_scaled           1x 1x4xNo
-%     -image_target_pad       HoxWox3xNo
-%     -image_search_pad       HoxWox3xNo
+%     -bbox_gt_scaled           1x 1x4x(No*N)
+%     -image_target_pad       HoxWox3x(No*N)
+%     -image_search_pad       HoxWox3x(No*N)
 %   2016 Qiang Wang
 classdef SampleGenerator < dagnn.Layer
     
@@ -15,6 +15,8 @@ classdef SampleGenerator < dagnn.Layer
         Ho = 0;
         Wo = 0;
         No = 1;
+        averageImage = reshape(single([123,117,104]),[1,1,3]);
+        padding = 1;
         visual = true;
     end
     
@@ -22,7 +24,6 @@ classdef SampleGenerator < dagnn.Layer
         % the grid --> this is cached
         % has the size: [2 x HoWo]
         xxyy ;
-        averageImage = reshape(single([123,117,104]),[1,1,3]);
     end
     
     methods
@@ -40,16 +41,15 @@ classdef SampleGenerator < dagnn.Layer
             end
             
             [im_h,im_w,im_c,~] = size(image_prev);
-            if im_c == 1 
+            if im_c == 1
                 image_prev = repmat(image_prev,[1,1,3,1]);
             end
             
-            
             %% target
-            target_crop_w = 2*(bbox_prev_gt(3)-bbox_prev_gt(1));
-            target_crop_h = 2*(bbox_prev_gt(4)-bbox_prev_gt(2));
-            target_crop_cx = (bbox_prev_gt(3)+bbox_prev_gt(1))/2;
-            target_crop_cy = (bbox_prev_gt(4)+bbox_prev_gt(2))/2;
+            target_crop_w = (1+obj.padding)*(bbox_prev_gt(3)-bbox_prev_gt(1));
+            target_crop_h = (1+obj.padding)*(bbox_prev_gt(4)-bbox_prev_gt(2));
+            target_crop_cx = (bbox_prev_gt(1)+bbox_prev_gt(3))/2;
+            target_crop_cy = (bbox_prev_gt(2)+bbox_prev_gt(4))/2;
             
             cy_t = (target_crop_cy*2/(im_h-1))-1;
             cx_t = (target_crop_cx*2/(im_w-1))-1;
@@ -59,21 +59,24 @@ classdef SampleGenerator < dagnn.Layer
             
             s = reshape([h_s;w_s], 2,1,1); % x,y scaling
             t = reshape([cy_t;cx_t], 2,1,1); % translation
-           
+            
             g = bsxfun(@times, obj.xxyy, s); % scale
             g = bsxfun(@plus, g, t); % translate
             g = reshape(g, 2,obj.Ho,obj.Wo,1);
             
-            target_pad = vl_nnbilinearsampler(image_prev, single(g));
+            target_pad = vl_nnbilinearsampler(image_prev, g);
             
             image_target_pad = repmat(target_pad,[1,1,1,obj.No]);
-            image_search_pad = vl_nnbilinearsampler(image_curr, single(g));
+            
             
             if useGPU,
-                bbox_gt_scaled = gpuArray(zeros([1,1,4,obj.No],'single'));%buff
+                bbox_gt_scaled = gpuArray.zeros([1,1,4,obj.No],'single');%gpu support
+                image_search_pad = gpuArray.zeros(size(image_target_pad),'single');
             else
                 bbox_gt_scaled = zeros([1,1,4,obj.No],'single');%buff
+                image_search_pad = zeros(size(image_target_pad),'single');
             end
+            image_search_pad(:,:,:,1) = vl_nnbilinearsampler(image_curr, g);
             
             curr_search_location = [target_crop_cx-target_crop_w/2;target_crop_cy-target_crop_h/2];
             bbox_gt_recentered = recenter(bbox_curr_gt',curr_search_location);
@@ -92,15 +95,14 @@ classdef SampleGenerator < dagnn.Layer
                 bbox_gt_recentered = recenter(bbox_curr_gt',rand_search_location);
                 bbox_gt_scaled(1,1,1:4,2:obj.No) = scale(bbox_gt_recentered,target_crop_w,target_crop_h);
                 
-                
                 cy_t = (target_crop_cy*2/(im_h-1))-1;
                 cx_t = (target_crop_cx*2/(im_w-1))-1;
                 
                 h_s = target_crop_h/(im_h-1);
                 w_s = target_crop_w/(im_w-1);
                 
-                s = reshape([h_s;w_s], 2,1,[]); % x,y scaling
-                t = reshape([cy_t;cx_t], 2,1,[]); % translation
+                s = reshape([h_s;w_s],2,1,[]); % x,y scaling
+                t = reshape([cy_t;cx_t],2,1,[]); % translation
                 
                 g = bsxfun(@times, obj.xxyy, s); % scale
                 g = bsxfun(@plus, g, t); % translate
@@ -123,16 +125,17 @@ classdef SampleGenerator < dagnn.Layer
             image_search_pad = bsxfun(@minus,image_search_pad,obj.averageImage);
             outputs = {bbox_gt_scaled,image_target_pad,image_search_pad};
         end
-                
+        
         function obj = SampleGenerator(varargin)
             obj.load(varargin);
             % get the output sizes:
             obj.Ho = obj.Ho;
             obj.Wo = obj.Wo;
             obj.No = obj.No;
-            obj.xxyy = [];
+            obj.padding = obj.padding;
             obj.averageImage = obj.averageImage;
             obj.visual = obj.visual;
+            obj.xxyy = [];
         end
         
         function obj = reset(obj)
@@ -149,7 +152,6 @@ classdef SampleGenerator < dagnn.Layer
             xxyy_ = [xx(:), yy(:)]' ; % 2xM
             if useGPU
                 obj.xxyy = gpuArray(xxyy_);
-                obj.averageImage = gpuArray(obj.averageImage);
             end
             obj.xxyy = xxyy_ ;
         end
@@ -165,38 +167,35 @@ bbox_scaled = bsxfun(@rdivide,bbox_recentered*10,[Wo;Ho;Wo;Ho]);    %kScaleFacto
 end %%function
 
 function bbox_curr_shift = shift(image_sz,bbox_curr,n,useGPU)
-if useGPU
-    bbox_curr_shift = gpuArray(zeros(4,n,'single'));
-else
-    bbox_curr_shift = zeros(4,n,'single');
-end
-
 width = bbox_curr(3) - bbox_curr(1);
 height = bbox_curr(4) - bbox_curr(2);
 center_x = (bbox_curr(1) + bbox_curr(3))/2;
 center_y = (bbox_curr(2) + bbox_curr(4))/2;
 
-for i = 1:n
-    width_scale_factor = max(min(laplace_rand(15),0.4),-0.4);
-    new_width = min(max(width*(1+width_scale_factor),1),image_sz(2)-1);
-    
-    height_scale_factor = max(min(laplace_rand(15),0.4),-0.4);
-    new_height = min(max(height*(1+height_scale_factor),1),image_sz(1)-1);
-    
-    new_x_temp = center_x+laplace_rand(5);
-    new_center_x = min(image_sz(2)-new_width/2,max(new_width/2,new_x_temp));
-    new_center_x = min(max(new_center_x,center_x-width),center_x+width);
-    
-    new_y_temp = center_y+laplace_rand(5);
-    new_center_y = min(image_sz(1)-new_height/2,max(new_height/2,new_y_temp));
-    new_center_y = min(max(new_center_y,center_y-height),center_y+height);
-    
-    bbox_curr_shift(1:4,i) = [new_center_x,new_center_y,new_center_x,new_center_y]-...
-        [new_width,new_height,-new_width,-new_height]/2;
+width_scale_factor = max(min(laplace_rand(15,n),0.4),-0.4);
+new_width = min(max(width*(1+width_scale_factor),1),image_sz(2)-1);
+
+height_scale_factor = max(min(laplace_rand(15,n),0.4),-0.4);
+new_height = min(max(height*(1+height_scale_factor),1),image_sz(1)-1);
+
+new_x_temp = center_x+laplace_rand(5,n);
+new_center_x = min(image_sz(2)-new_width/2,max(new_width/2,new_x_temp));
+new_center_x = min(max(new_center_x,center_x-width),center_x+width);
+
+new_y_temp = center_y+laplace_rand(5,n);
+new_center_y = min(image_sz(1)-new_height/2,max(new_height/2,new_y_temp));
+new_center_y = min(max(new_center_y,center_y-height),center_y+height);
+
+bbox_curr_shift(1:4,1:n) = [new_center_x;new_center_y;new_center_x;new_center_y]-...
+    [new_width;new_height;-new_width;-new_height]/2;
+
+if useGPU
+    bbox_curr_shift = gpuArray(bbox_curr_shift);
 end
+
 end %%function
 
-function lp = laplace_rand(lambda)
-u = rand(1)-0.5;
-lp = sign(u)*log(1-abs(2*u))/lambda;
+function lp = laplace_rand(lambda,n)
+u = rand(1,n)-0.5;
+lp = (sign(u).*log(1-abs(2*u)))/lambda;
 end %%function

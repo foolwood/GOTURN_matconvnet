@@ -3,7 +3,7 @@ addpath('../utils');
 addpath('../data/ILSVRC/devkit/evaluation');
 opts = [];
 opts.dataDir = '../data';
-opts.version = 4;
+opts.version = 1;
 opts = vl_argparse(opts, varargin) ;
 
 opts.vot16_dataDir = fullfile(opts.dataDir,'VOT16');
@@ -192,9 +192,6 @@ if any(strcmpi(set_name,'tc128_no_cvpr2013'))
         now_index = now_index+(n_len-1);
     end %%end v
 end %%end tc128_no_cvpr2013
-
-
-
 
 % -------------------------------------------------------------------------
 %                                                            ALOV300_GOTURN
