@@ -2,7 +2,6 @@ function [net, info] = train_goturn(varargin)
 addpath('../utils');
 run vl_setupnn;
 opts.dataDir = fullfile('..', 'data') ;
-opts.numFetchThreads = 12 ;%TODO
 opts.version = 1;
 opts.expDir = fullfile('..', 'data', ['GOTURN-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
@@ -29,9 +28,7 @@ net = goturn_net_init();
 if exist(opts.imdbPath,'file')
     imdb = load(opts.imdbPath) ;
 else
-    tic
-    imdb = setup_data('dataDir', opts.dataDir,'version',opts.version);
-    toc
+    imdb = setup_data('version',opts.version);
     if ~exist(opts.expDir,'dir'),mkdir(opts.expDir);end
     save(opts.imdbPath, '-v7.3', '-struct', 'imdb');
 end
@@ -41,9 +38,7 @@ end
 % -------------------------------------------------------------------------
 
 [net, info] = cnn_train_dag(net, imdb, getBatch(opts), ...
-    'expDir', opts.expDir, ...
-    opts.train, ...
-    'val', find(imdb.images.set == 2));
+    'expDir', opts.expDir, opts.train);
 
 % -------------------------------------------------------------------------
 %                                                                   Deploy

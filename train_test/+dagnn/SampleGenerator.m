@@ -86,8 +86,8 @@ classdef SampleGenerator < dagnn.Layer
             if obj.No > 1
                 bbox_curr_shift = shift([im_h,im_w],bbox_prev_gt,obj.No-1,useGPU);
                 
-                target_crop_w = 2*(bbox_curr_shift(3,:)-bbox_curr_shift(1,:));
-                target_crop_h = 2*(bbox_curr_shift(4,:)-bbox_curr_shift(2,:));
+                target_crop_w = (1+obj.padding)*(bbox_curr_shift(3,:)-bbox_curr_shift(1,:));
+                target_crop_h = (1+obj.padding)*(bbox_curr_shift(4,:)-bbox_curr_shift(2,:));
                 target_crop_cx = (bbox_curr_shift(1,:)+bbox_curr_shift(3,:))/2;
                 target_crop_cy = (bbox_curr_shift(2,:)+bbox_curr_shift(4,:))/2;
                 
@@ -95,8 +95,8 @@ classdef SampleGenerator < dagnn.Layer
                 bbox_gt_recentered = recenter(bbox_curr_gt',rand_search_location);
                 bbox_gt_scaled(1,1,1:4,2:obj.No) = scale(bbox_gt_recentered,target_crop_w,target_crop_h);
                 
-                cy_t = (target_crop_cy*2/(im_h-1))-1;
-                cx_t = (target_crop_cx*2/(im_w-1))-1;
+                cy_t = (target_crop_cy*(2/(im_h-1)))-1;
+                cx_t = (target_crop_cx*(2/(im_w-1)))-1;
                 
                 h_s = target_crop_h/(im_h-1);
                 w_s = target_crop_w/(im_w-1);
@@ -108,11 +108,11 @@ classdef SampleGenerator < dagnn.Layer
                 g = bsxfun(@plus, g, t); % translate
                 g = reshape(g, 2,obj.Ho,obj.Wo,[]);
                 
-                image_search_pad(:,:,:,2:obj.No) = vl_nnbilinearsampler(image_curr, single(g));
+                image_search_pad(:,:,:,2:obj.No) = vl_nnbilinearsampler(image_curr, g);
             end
             
             if obj.visual
-                scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*226+1;
+                scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*obj.Wo+1;
                 
                 for i = 1:obj.No
                     subplot(4,obj.No/4,i);imshow(uint8(image_search_pad(:,:,:,i)));
