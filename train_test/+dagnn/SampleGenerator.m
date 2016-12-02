@@ -167,6 +167,7 @@ bbox_scaled = bsxfun(@rdivide,bbox_recentered*10,[Wo;Ho;Wo;Ho]);    %kScaleFacto
 end %%function
 
 function bbox_curr_shift = shift(image_sz,bbox_curr,n,useGPU)
+bbox_curr = gather(bbox_curr);
 width = bbox_curr(3) - bbox_curr(1);
 height = bbox_curr(4) - bbox_curr(2);
 center_x = (bbox_curr(1) + bbox_curr(3))/2;
