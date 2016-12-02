@@ -4,12 +4,12 @@ function net = goturn_deploy(net)
 isDag = isa(net, 'dagnn.DagNN') ;
 if isDag
     dagRemoveLayersOfType(net, 'dagnn.Loss') ;
-    dagRemoveLayersOfType(net, 'dagnn.DropOut') ;
+%     dagRemoveLayersOfType(net, 'dagnn.DropOut') ;
 else
     net = simpleRemoveLayersOfType(net, 'softmaxloss') ;
-    net = simpleRemoveLayersOfType(net, 'dropout') ;
+%     net = simpleRemoveLayersOfType(net, 'dropout') ;
 end
-dagRemoveLayersOfType(net, 'dagnn.SampleGenerator') ;
+
 end
 
 
