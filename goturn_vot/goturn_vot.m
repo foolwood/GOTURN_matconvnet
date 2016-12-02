@@ -90,7 +90,8 @@ function [state, location] = goturn_update(state, I, varargin)
     bbox_estimate_unscaled = bbox_estimate/10.*...
         [crop_width,crop_height,crop_width,crop_height];
     bbox_estimate_uncentered = max(0,bbox_estimate_unscaled+...
-        bbox_prev_prior_tight);
+        (bbox_prev_prior_tight([1,2,1,2])+bbox_prev_prior_tight([3,4,3,4]))/2-...
+        [crop_width,crop_height,crop_width,crop_height]/2);
     
     bbox_estimate_uncentered(3) = min(state.sz(2)-1,bbox_estimate_uncentered(3));
     bbox_estimate_uncentered(4) = min(state.sz(1)-1,bbox_estimate_uncentered(4));
