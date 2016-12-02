@@ -6,9 +6,9 @@ opts.version = 1;
 opts.expDir = fullfile('..', 'data', ['GOTURN-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
-trainOpts.learningRate = 1e-5;
+trainOpts.learningRate = 1e-4;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 20;
+trainOpts.numEpochs = 40;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
