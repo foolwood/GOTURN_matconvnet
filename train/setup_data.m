@@ -32,6 +32,7 @@ switch opts.version
         video_set = ones(1,21395);
         video_set(randperm(numel(video_set),1000)) = 2;
         image_set = [];
+        type = 1;
     case 2,
         bbox_mode = 'minmax';%
         set_name = {'alov300_goturn','det16'};
@@ -39,6 +40,7 @@ switch opts.version
         video_set(randperm(numel(video_set),1000)) = 2;
         image_set = ones(1,10000);
         image_set(randperm(numel(image_set),1000)) = 2;
+        type = 2;
     otherwise,
         error('No such version!'); 
 end
@@ -49,7 +51,8 @@ if strcmp(bbox_mode,'axis_aligned'),
 else
     get_bbox = @get_minmax_BB;
 end
-
+imdb.flag = 0;
+imdb.type = type;
 imdb.images.set = [video_set,image_set];
 imdb.images.video_target = cell([numel(video_set),1]);
 imdb.images.video_search = cell([numel(video_set),1]);

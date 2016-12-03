@@ -18,9 +18,9 @@ for i = 1:numel(train_anno_subfile)
     xml_file = [xml_file,xml_sub_file];
 end
 
-vaild_index = 0;
-img_files = cell(1,478806);
-ground_truth_4xy = zeros(478806,8,'single');
+now_index = 0;
+img_files = cell(1,349319);
+ground_truth_4xy = cell(1,349319);
 for i = 1:numel(xml_file)
     rec = VOCreadxml(xml_file{i});
     if ~isfield(rec.annotation,'object')
@@ -28,18 +28,15 @@ for i = 1:numel(xml_file)
     end
     img_files_temp = strrep(xml_file{i},'Annotations','Data');
     img_files_temp = strrep(img_files_temp,'xml','JPEG');
+    now_index = now_index+1;
+    img_files{now_index} = img_files_temp;
+    bndbox_temp = zeros(length(rec.annotation.object),8,'single');
     for k=1:length(rec.annotation.object)
-        
         obj = rec.annotation.object(k);
         b = obj.bndbox;
         bb = str2double({b.xmin b.ymin b.xmax b.ymax});
-        
-        vaild_index =vaild_index+1;
-        
-        img_files{vaild_index} = img_files_temp;
-
-        ground_truth_4xy(vaild_index,:) = [bb(1),bb(2),bb(1),bb(4),bb(3),bb(4),bb(3),bb(2)];
-        
+        bndbox_temp(k,:) = [bb(1),bb(2),bb(1),bb(4),bb(3),bb(4),bb(3),bb(2)];
     end
+     ground_truth_4xy{now_index} = bndbox_temp;
 end
 end
