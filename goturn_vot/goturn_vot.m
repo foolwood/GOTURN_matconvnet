@@ -53,7 +53,7 @@ function [state, location] = goturn_initialize(image, region, varargin)
 
 state = [];
 state.gpu = ispc();
-state.visualization = true;
+state.visualization = false;
 
 state.net = dagnn.DagNN.loadobj(load('GOTURN_trained.mat'));
 % state.net.mode = 'test';
@@ -139,7 +139,7 @@ location = double(rect_estimate_uncentered);
 if state.visualization
     scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*227+1;
     
-    state.h1.set('CData',uint8(state.image_prev{1}));
+    state.h1.set('CData',uint8(gather(state.image_prev{1})));
     state.h2.set('Position',location);
     
     image_prev_crop = bsxfun(@plus,...
