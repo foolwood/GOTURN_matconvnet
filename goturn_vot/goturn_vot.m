@@ -4,7 +4,7 @@ function goturn_vot
 % *************************************************************
 % VOT: Always call exit command at the end to terminate Matlab!
 % *************************************************************
-% cleanup = onCleanup(@() exit() );
+cleanup = onCleanup(@() exit() );
 
 % *************************************************************
 % VOT: Set random seed to a different value every time.
@@ -44,19 +44,22 @@ end;
 % **********************************
 % VOT: Output the results
 % **********************************
-% handle.quit(handle);
+handle.quit(handle);
 
 end
 
 function [state, location] = goturn_initialize(I, region, varargin)
+addpath('../utils');
 state = [];
 state.visualization = true;
+state.gpu = ispc();
 
 state.net = dagnn.DagNN.loadobj(load('GOTURN_trained.mat'));
 state.net.layers(1).block.No = 1;
 state.net.vars(state.net.getVarIndex('image_target_crop')).precious = 1;
 state.net.vars(state.net.getVarIndex('image_search_crop')).precious = 1;
-%     state.net.mode = 'test';
+if state.gpu,state.net.move('gpu');end;
+% state.net.mode = 'test';
 state.rect2bbox = @(x) ([x(1)-1,x(2)-1,x(1)-1+x(3),x(2)-1+x(4)]);
 state.bbox2rect = @(x) ([x(1)+1,x(2)+1,x(3)-x(1),x(4)-x(2)]);
 
@@ -68,6 +71,7 @@ state.rect_prev_prior_tight = single(region);
 location = region;
 
 if state.visualization
+    figure;
     subplot(1,3,1);state.h1 = imshow(uint8(I{1}));
     state.h2 = rectangle('Position',location,'EdgeColor',[0,1,0]);
     subplot(1,3,2);state.h3 = imshow(zeros(227,227,3,'single'));
@@ -84,11 +88,18 @@ image_curr = I{1};
 bbox_prev_tight = state.rect2bbox(state.rect_prev_tight);
 bbox_prev_prior_tight = state.rect2bbox(state.rect_prev_prior_tight);
 
-state.net.eval({'bbox_target',bbox_prev_tight,...
+if state.gpu 
+    state.net.eval({'bbox_target',gpuArray(bbox_prev_tight),...
+    'bbox_search',gpuArray(bbox_prev_prior_tight),...
+    'image_target',gpuArray(state.image_prev),'image_search',gpuArray(image_curr)});
+else
+    state.net.eval({'bbox_target',bbox_prev_tight,...
     'bbox_search',bbox_prev_prior_tight,...
     'image_target',state.image_prev,'image_search',image_curr});
+end
 
-bbox_estimate = squeeze(state.net.vars(state.net.getVarIndex('fc8')).value)';
+
+bbox_estimate = gather(squeeze(state.net.vars(state.net.getVarIndex('fc8')).value))';
 
 crop_width = 2*state.rect_prev_tight(3);
 crop_height = 2*state.rect_prev_tight(4);
@@ -125,8 +136,8 @@ if state.visualization
         state.net.vars(state.net.getVarIndex('image_search_crop')).value,...
         state.net.meta.normalization.averageImage);
     
-    state.h3.set('CData',uint8(image_prev_crop));
-    state.h4.set('CData',uint8(image_curr_crop));
+    state.h3.set('CData',uint8(gather(image_prev_crop)));
+    state.h4.set('CData',uint8(gather(image_curr_crop)));
     state.h5.set('Position',scaled2rect(bbox_estimate));
     drawnow;
 end
