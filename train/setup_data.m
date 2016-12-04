@@ -31,15 +31,12 @@ switch opts.version
         set_name = {'vot16'};
         video_set = ones(1,21395);
         video_set(randperm(numel(video_set),1000)) = 2;
-        image_set = [];
         type = 1;
     case 2,
         bbox_mode = 'minmax';%
         set_name = {'alov300_goturn','det16'};
         video_set = ones(1,15570);
         video_set(randperm(numel(video_set),1000)) = 2;
-        image_set = ones(1,10000);
-        image_set(randperm(numel(image_set),1000)) = 2;
         type = 2;
     otherwise,
         error('No such version!'); 
@@ -53,14 +50,13 @@ else
 end
 imdb.flag = 0;
 imdb.type = type;
-imdb.images.set = [video_set,image_set];
+imdb.images.set = video_set;
 imdb.images.video_target = cell([numel(video_set),1]);
 imdb.images.video_search = cell([numel(video_set),1]);
 imdb.images.video_target_bboxs = zeros(numel(video_set),4,'single');
 imdb.images.video_search_bboxs = zeros(numel(video_set),4,'single');
 
-imdb.images.image_path = cell([numel(image_set),1]);
-imdb.images.image_bboxs = cell([numel(image_set),1]);
+
 
 now_index = 0;
 % -------------------------------------------------------------------------
@@ -246,11 +242,13 @@ if any(strcmpi(set_name,'det16'))
     disp('DET16 Data:');
     det16_dataDir = opts.det16_dataDir;
     
-    [img_files, ground_truth_4xy] = load_video_info_det(det16_dataDir);
+    [img_files, ground_truth_4xy, img_display_sz] = load_video_info_det(det16_dataDir);
     bbox_gt = get_bbox(ground_truth_4xy);
     n_len = numel(img_files);
     imdb.images.image_path = img_files;
     imdb.images.image_bboxs = bbox_gt;
+    imdb.images.image_display_sz = img_display_sz;
+    imdb.images.n_valid_images = n_len;
     
     now_index = now_index+n_len;
 end %%end det
