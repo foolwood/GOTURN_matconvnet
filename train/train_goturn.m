@@ -77,9 +77,10 @@ if opts.numGpus > 0
         image_target = vl_imreadjpeg(imdb.images.image_path(batch),'GPU');
         image_target = image_target{1};
         image_search = image_target;
-       
-        if(any(image_sz ~= imdb.images.image_display_sz(batch)))
-            factor = image_sz./imdb.images.image_display_sz(batch);
+        image_sz = size(image_search);
+        image_sz = image_sz([1,2]);
+        if(any(image_sz ~= imdb.images.image_display_sz{batch}))
+            factor = image_sz./imdb.images.image_display_sz{batch};
             factor = factor([1,2,1,2]);
         else
             factor = [1,1,1,1];
@@ -87,7 +88,7 @@ if opts.numGpus > 0
         
         image_bboxs_temple = imdb.images.image_bboxs{batch};
         batch2 = randi(size(image_bboxs_temple,1),1);
-        bbox_target = gpuArray(image_bboxs_temple(batch2,1:4).*factor);
+        bbox_target = gpuArray(single(image_bboxs_temple(batch2,1:4).*factor));
         bbox_search = bbox_target;
     end
 else
@@ -103,9 +104,10 @@ else
         image_target = vl_imreadjpeg(imdb.images.image_path(batch));
         image_target = image_target{1};
         image_search = image_target;
-       
-        if(any(image_sz ~= imdb.images.image_display_sz(batch)))
-            factor = image_sz./imdb.images.image_display_sz(batch);
+        image_sz = size(image_search);
+        image_sz = image_sz([1,2]);
+        if(any(image_sz ~= imdb.images.image_display_sz{batch}))
+            factor = image_sz./imdb.images.image_display_sz{batch};
             factor = factor([1,2,1,2]);
         else
             factor = [1,1,1,1];
@@ -113,7 +115,7 @@ else
         
         image_bboxs_temple = imdb.images.image_bboxs{batch};
         batch2 = randi(size(image_bboxs_temple,1),1);
-        bbox_target = image_bboxs_temple(batch2,1:4).*factor;
+        bbox_target = single(image_bboxs_temple(batch2,1:4).*factor);
         bbox_search = bbox_target;
     end
 end

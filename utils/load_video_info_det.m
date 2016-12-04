@@ -36,11 +36,11 @@ for i = 1:n_pass
     img_files_temp = strrep(xml_file{i},'Annotations','Data');
     img_files_temp = strrep(img_files_temp,'xml','JPEG');
     
-    img_files(i) = img_files_temp;
+    img_files{i} = img_files_temp;
     
     display_width = str2double(rec.annotation.size.width);
     display_height = str2double(rec.annotation.size.height);
-    img_display_sz(i) = [display_width,display_height];
+    img_display_sz{i} = [display_height,display_width];
     
     gt_4xy_temp = [];
     for k=1:length(rec.annotation.object)
@@ -59,7 +59,7 @@ for i = 1:n_pass
         vaild_index(i) = false;
         continue;
     end
-    ground_truth_4xy(i) = gt_4xy_temp;
+    ground_truth_4xy{i} = gt_4xy_temp;
 end
 img_display_sz(~vaild_index) = [];
 img_files(~vaild_index) = [];

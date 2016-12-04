@@ -43,6 +43,7 @@ classdef SampleGenerator < dagnn.Layer
             [im_h,im_w,im_c,~] = size(image_prev);
             if im_c == 1
                 image_prev = repmat(image_prev,[1,1,3,1]);
+                image_curr = repmat(image_curr,[1,1,3,1]);
             end
             
             %% target

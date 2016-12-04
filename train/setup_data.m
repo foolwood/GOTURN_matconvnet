@@ -34,8 +34,8 @@ switch opts.version
         type = 1;
     case 2,
         bbox_mode = 'minmax';%
-        set_name = {'alov300_goturn','det16'};
-        video_set = ones(1,15570);
+        set_name = {'alov300','det16'};
+        video_set = ones(1,89351);
         video_set(randperm(numel(video_set),1000)) = 2;
         type = 2;
     otherwise,
