@@ -64,7 +64,7 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-imdb.flag = imdb.flag+1;
+imdb.flag = batch;
 if opts.numGpus > 0
     if mod(imdb.flag,imdb.type) == 0
         batch = randi(numel(imdb.images.video_target),1);
@@ -77,8 +77,8 @@ if opts.numGpus > 0
     else
         
         batch = randi(numel(imdb.images.image_path),1);
-        while numel(imdb.images.image_bboxs(batch)) == 0
-            batch = randi(numel(imdb.images.image_target),1);
+        while numel(imdb.images.image_bboxs{batch}) == 0
+            batch = randi(numel(imdb.images.image_path),1);
         end
         image_target = vl_imreadjpeg(imdb.images.image_path(batch),'GPU');
         image_target = image_target{1};
