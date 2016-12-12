@@ -2,7 +2,7 @@ function [net, info] = train_goturn(varargin)
 addpath('../utils');
 run vl_setupnn;
 opts.dataDir = fullfile('..', 'data') ;
-opts.version = 2;
+opts.version = 1;
 opts.expDir = fullfile('..', 'data', ['GOTURN-experiment-' num2str(opts.version)]) ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 

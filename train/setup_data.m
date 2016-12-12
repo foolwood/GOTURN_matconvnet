@@ -3,7 +3,7 @@ addpath('../utils');
 addpath('../data/ILSVRC/devkit/evaluation');
 opts = [];
 opts.dataDir = '../data';
-opts.version = 2;
+opts.version = 1;
 opts = vl_argparse(opts, varargin) ;
 
 opts.vot16_dataDir = fullfile(opts.dataDir,'VOT16');
@@ -30,13 +30,13 @@ switch opts.version
         bbox_mode = 'minmax';%
         set_name = {'vot16'};
         video_set = ones(1,21395);
-        video_set(randperm(numel(video_set),1000)) = 2;
+        video_set(randperm(numel(video_set),100)) = 2;
         type = 1;
     case 2,
         bbox_mode = 'minmax';%
         set_name = {'alov300','det16'};
         video_set = ones(1,89351);
-        video_set(randperm(numel(video_set),1000)) = 2;
+        video_set(randperm(numel(video_set),100)) = 2;
         type = 2;
     otherwise,
         error('No such version!'); 
@@ -48,15 +48,13 @@ if strcmp(bbox_mode,'axis_aligned'),
 else
     get_bbox = @get_minmax_BB;
 end
-imdb.flag = 0;
+
 imdb.type = type;
 imdb.images.set = video_set;
 imdb.images.video_target = cell([numel(video_set),1]);
 imdb.images.video_search = cell([numel(video_set),1]);
 imdb.images.video_target_bboxs = zeros(numel(video_set),4,'single');
 imdb.images.video_search_bboxs = zeros(numel(video_set),4,'single');
-
-
 
 now_index = 0;
 % -------------------------------------------------------------------------
