@@ -49,12 +49,12 @@ for i = 1:n_xml_file
                 bb(1) < 0 || bb(2) < 0 || bb(3) <= bb(1) || bb(4) <= bb(2))
             continue;
         end
-        gt_4xy_temp = [bb(1),bb(2),bb(3),bb(2),bb(3),bb(4),bb(1),bb(4)]+1;
+        gt_4xy_temp = single([bb(1),bb(2),bb(3),bb(2),bb(3),bb(4),bb(1),bb(4)]+1);
         
         vaild_index = vaild_index + 1;
         img_files{vaild_index} = img_files_temp;
         ground_truth_4xy(vaild_index,:) = gt_4xy_temp;
-        img_display_sz(vaild_index,:) = [display_height,display_width];
+        img_display_sz(vaild_index,:) = [display_width,display_height];
     end
 end
 img_files((vaild_index+1):n_xml_file) = [];
