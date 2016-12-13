@@ -292,4 +292,23 @@ for i = 1:numel(ILSVRC_val)
 end
 
 
+base_path = '../ILSVRC/';
+
+[img_files, ground_truth_4xy, img_display_sz] = load_video_info_det(base_path);
+if numel(img_files)~=numel(ground_truth)
+    error('miss_matching');
+end
+ILSVRC_det_frame_num(i) = numel(img_files);
+if visual,
+    close all
+    update_visualization = show_video(img_files);
+    for frame = 1:numel(img_files),
+        stop = update_visualization(frame, ground_truth(frame,:),[],[]);
+        if stop, break, end
+        drawnow;
+    end
+end
+
+
+
 

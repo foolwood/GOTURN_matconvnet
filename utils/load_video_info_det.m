@@ -21,28 +21,24 @@ for i = 1:numel(train_anno_subfile)
     index_count = index_count+n_xml_sub_file;
 end
 
-n_pass = 349319;%349319
+n_xml_file = numel(xml_file);%349319
 kMaxRatio = 0.66;
-vaild_index = true(1,n_pass);
-img_files = cell(1,n_pass);
-ground_truth_4xy = cell(1,n_pass);
-img_display_sz = cell(1,n_pass);
-for i = 1:n_pass
+img_files = cell(1,n_xml_file);
+ground_truth_4xy = zeros(n_xml_file,8,'single');
+img_display_sz = ones(n_xml_file,2,'single');
+vaild_index = 0;
+
+for i = 1:n_xml_file
     rec = VOCreadxml(xml_file{i});
     if ~isfield(rec.annotation,'object') || ~isfield(rec.annotation,'size')
-        vaild_index(i) = false;
         continue;
     end
     img_files_temp = strrep(xml_file{i},'Annotations','Data');
     img_files_temp = strrep(img_files_temp,'xml','JPEG');
     
-    img_files{i} = img_files_temp;
-    
     display_width = str2double(rec.annotation.size.width);
     display_height = str2double(rec.annotation.size.height);
-    img_display_sz{i} = [display_height,display_width];
     
-    gt_4xy_temp = [];
     for k=1:length(rec.annotation.object)
         obj = rec.annotation.object(k);
         b = obj.bndbox;
@@ -53,16 +49,15 @@ for i = 1:n_pass
                 bb(1) < 0 || bb(2) < 0 || bb(3) <= bb(1) || bb(4) <= bb(2))
             continue;
         end
-        gt_4xy_temp(end+1,:) = [bb(1),bb(2),bb(3),bb(2),bb(3),bb(4),bb(1),bb(4)]+1;
+        gt_4xy_temp = [bb(1),bb(2),bb(3),bb(2),bb(3),bb(4),bb(1),bb(4)]+1;
+        
+        vaild_index = vaild_index + 1;
+        img_files{vaild_index} = img_files_temp;
+        ground_truth_4xy(vaild_index,:) = gt_4xy_temp;
+        img_display_sz(vaild_index,:) = [display_height,display_width];
     end
-    if size(gt_4xy_temp,1) == 0
-        vaild_index(i) = false;
-        continue;
-    end
-    ground_truth_4xy{i} = gt_4xy_temp;
 end
-img_display_sz(~vaild_index) = [];
-img_files(~vaild_index) = [];
-ground_truth_4xy(~vaild_index) = [];
-
+img_files((vaild_index+1):n_xml_file) = [];
+ground_truth_4xy((vaild_index+1):n_xml_file,:) = [];
+img_display_sz((vaild_index+1):n_xml_file,:) = [];
 end
