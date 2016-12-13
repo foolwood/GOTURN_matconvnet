@@ -43,9 +43,10 @@ for i = 1:n_xml_file
         obj = rec.annotation.object(k);
         b = obj.bndbox;
         bb = str2double({b.xmin b.ymin b.xmax b.ymax});
-        
-        if ((bb(3)-bb(1)) > kMaxRatio * display_width || ...
-                (bb(4)-bb(2)) > kMaxRatio * display_height ||...
+        w = bb(3)-bb(1);
+        h = bb(4)-bb(2);
+        if (w > kMaxRatio * display_width || bb(1) < 0.5*w || (display_width - bb(3)) < 0.5*w ||...
+                h > kMaxRatio * display_height || bb(2) < 0.5*h || (display_height - bb(4)) < 0.5*h ||...
                 bb(1) < 0 || bb(2) < 0 || bb(3) <= bb(1) || bb(4) <= bb(2))
             continue;
         end
