@@ -1,20 +1,20 @@
 %DAGNN.SampleGenerator Generate sample for GOTURN
 % input:
-%     -bbox_prev_gt       Nx4
-%     -bbox_curr_gt       Nx4
-%     -image_prev      HxWx3xN
-%     -image_curr      HxWx3xN
+%     -bbox_prev_gt       1x4
+%     -bbox_curr_gt       1x4
+%     -image_prev      HxWx[3\1]x1
+%     -image_curr      HxWx[3\1]x1
 % output:
-%     -bbox_gt_scaled           1x 1x4x(No*N)
-%     -image_target_pad       HoxWox3x(No*N)
-%     -image_search_pad       HoxWox3x(No*N)
+%     -bbox_gt_scaled          1x 1x4x(1+kGeneratedExamplesPerImage)
+%     -image_target_pad       HoxWox3x(1+kGeneratedExamplesPerImage)
+%     -image_search_pad       HoxWox3x(1+kGeneratedExamplesPerImage)
 %   2016 Qiang Wang
 classdef SampleGenerator < dagnn.Layer
     
     properties
         Ho = 0;
         Wo = 0;
-        No = 1;
+        kGeneratedExamplesPerImage = 0;
         averageImage = reshape(single([123,117,104]),[1,1,3]);
         padding = 1;
         visual = true;
@@ -23,20 +23,21 @@ classdef SampleGenerator < dagnn.Layer
     properties (Transient)
         % the grid --> this is cached
         % has the size: [2 x HoWo]
-        xxyy ;
+        yyxx ;
     end
     
     methods
         
         function outputs = forward(obj, inputs, ~)
-            bbox_prev_gt = inputs{1};
-            bbox_curr_gt = inputs{2};
-            image_prev = inputs{3};
-            image_curr = inputs{4};
+            image_prev = inputs{1};
+            image_curr = inputs{2};
+            bbox_prev = inputs{3};
+            bbox_curr = inputs{4};
+            
             
             % generate the grid coordinates:
-            useGPU = isa(bbox_prev_gt, 'gpuArray');
-            if isempty(obj.xxyy)
+            useGPU = isa(bbox_prev, 'gpuArray');
+            if isempty(obj.yyxx)
                 obj.initGrid(useGPU);
             end
             
@@ -47,84 +48,82 @@ classdef SampleGenerator < dagnn.Layer
             end
             
             %% target
-            target_crop_w = (1+obj.padding)*(bbox_prev_gt(3)-bbox_prev_gt(1));
-            target_crop_h = (1+obj.padding)*(bbox_prev_gt(4)-bbox_prev_gt(2));
-            target_crop_cx = (bbox_prev_gt(1)+bbox_prev_gt(3))/2;
-            target_crop_cy = (bbox_prev_gt(2)+bbox_prev_gt(4))/2;
+            roi_w = (1+obj.padding)*(bbox_prev(3)-bbox_prev(1));
+            roi_h = (1+obj.padding)*(bbox_prev(4)-bbox_prev(2));
+            roi_cx = (bbox_prev(1)+bbox_prev(3))/2;
+            roi_cy = (bbox_prev(2)+bbox_prev(4))/2;
             
-            cy_t = (target_crop_cy*2/(im_h-1))-1;
-            cx_t = (target_crop_cx*2/(im_w-1))-1;
+            cy_t = (roi_cy*2/(im_h-1))-1;
+            cx_t = (roi_cx*2/(im_w-1))-1;
             
-            h_s = target_crop_h/(im_h-1);
-            w_s = target_crop_w/(im_w-1);
+            h_s = roi_h/(im_h-1);
+            w_s = roi_w/(im_w-1);
             
-            s = reshape([h_s;w_s], 2,1,1); % x,y scaling
-            t = reshape([cy_t;cx_t], 2,1,1); % translation
+            s = [h_s;w_s]; % x,y scaling
+            t = [cy_t;cx_t]; % translation
             
-            g = bsxfun(@times, obj.xxyy, s); % scale
+            g = bsxfun(@times, obj.yyxx, s); % scale
             g = bsxfun(@plus, g, t); % translate
-            g = reshape(g, 2,obj.Ho,obj.Wo,1);
+            g = reshape(g, 2, obj.Ho, obj.Wo, 1);
             
             target_pad = vl_nnbilinearsampler(image_prev, g);
+            targets = repmat(target_pad,[1,1,1,obj.kGeneratedExamplesPerImage+1]);
             
-            image_target_pad = repmat(target_pad,[1,1,1,obj.No]);
-            
-            
-            if useGPU,
-                bbox_gt_scaled = gpuArray.zeros([1,1,4,obj.No],'single');%gpu support
-                image_search_pad = gpuArray.zeros(size(image_target_pad),'single');
+            if useGPU, %buff
+                bboxes_gt_scaled = gpuArray.zeros([1,1,4,obj.kGeneratedExamplesPerImage+1],'single');%gpu support
+                images = gpuArray.zeros(size(targets),'single');
             else
-                bbox_gt_scaled = zeros([1,1,4,obj.No],'single');%buff
-                image_search_pad = zeros(size(image_target_pad),'single');
+                bboxes_gt_scaled = zeros([1,1,4,obj.kGeneratedExamplesPerImage+1],'single');
+                images = zeros(size(targets),'single');
             end
-            image_search_pad(:,:,:,1) = vl_nnbilinearsampler(image_curr, g);
+            images(:,:,:,1) = vl_nnbilinearsampler(image_curr, g);
             
-            curr_search_location = [target_crop_cx-target_crop_w/2;target_crop_cy-target_crop_h/2];
-            bbox_gt_recentered = recenter(bbox_curr_gt',curr_search_location);
-            bbox_gt_scaled(1,1,1:4,1) = scale(bbox_gt_recentered,target_crop_w,target_crop_h);
+            curr_search_location = [roi_cx-roi_w/2;roi_cy-roi_h/2];
+            bbox_gt_recentered = recenter(bbox_curr',curr_search_location);
+            bboxes_gt_scaled(1,1,1:4,1) = scale(bbox_gt_recentered,roi_w,roi_h);
             
             %% search
-            if obj.No > 1
-                bbox_curr_shift = shift([im_h,im_w],bbox_prev_gt,obj.No-1,useGPU);
+            if obj.kGeneratedExamplesPerImage > 0
+                bboxes_curr_shift = shift([im_h,im_w],bbox_curr,obj.kGeneratedExamplesPerImage,useGPU);
                 
-                target_crop_w = (1+obj.padding)*(bbox_curr_shift(3,:)-bbox_curr_shift(1,:));
-                target_crop_h = (1+obj.padding)*(bbox_curr_shift(4,:)-bbox_curr_shift(2,:));
-                target_crop_cx = (bbox_curr_shift(1,:)+bbox_curr_shift(3,:))/2;
-                target_crop_cy = (bbox_curr_shift(2,:)+bbox_curr_shift(4,:))/2;
+                roi_w = (1+obj.padding)*(bboxes_curr_shift(3,:)-bboxes_curr_shift(1,:));
+                roi_h = (1+obj.padding)*(bboxes_curr_shift(4,:)-bboxes_curr_shift(2,:));
+                roi_cx = (bboxes_curr_shift(1,:)+bboxes_curr_shift(3,:))/2;
+                roi_cy = (bboxes_curr_shift(2,:)+bboxes_curr_shift(4,:))/2;
                 
-                rand_search_location = [target_crop_cx-target_crop_w/2;target_crop_cy-target_crop_h/2];
-                bbox_gt_recentered = recenter(bbox_curr_gt',rand_search_location);
-                bbox_gt_scaled(1,1,1:4,2:obj.No) = scale(bbox_gt_recentered,target_crop_w,target_crop_h);
+                rand_search_location = [roi_cx-roi_w/2;roi_cy-roi_h/2];
+                bboxes_gt_recentered = recenter(bbox_curr',rand_search_location);
+                bboxes_gt_scaled(1,1,1:4,2:end) = scale(bboxes_gt_recentered,roi_w,roi_h);
                 
-                cy_t = (target_crop_cy*(2/(im_h-1)))-1;
-                cx_t = (target_crop_cx*(2/(im_w-1)))-1;
+                cy_t = (roi_cy*(2/(im_h-1)))-1;
+                cx_t = (roi_cx*(2/(im_w-1)))-1;
                 
-                h_s = target_crop_h/(im_h-1);
-                w_s = target_crop_w/(im_w-1);
+                h_s = roi_h/(im_h-1);
+                w_s = roi_w/(im_w-1);
                 
                 s = reshape([h_s;w_s],2,1,[]); % x,y scaling
                 t = reshape([cy_t;cx_t],2,1,[]); % translation
                 
-                g = bsxfun(@times, obj.xxyy, s); % scale
+                g = bsxfun(@times, obj.yyxx, s); % scale
                 g = bsxfun(@plus, g, t); % translate
                 g = reshape(g, 2,obj.Ho,obj.Wo,[]);
                 
-                image_search_pad(:,:,:,2:obj.No) = vl_nnbilinearsampler(image_curr, g);
+                images(:,:,:,2:end) = vl_nnbilinearsampler(image_curr, g);
             end
             
             if obj.visual
-                scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*obj.Wo+1;
+                scaled2rect = @(x,w) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*(w-1)+1;
                 
-                for i = 1:obj.No
-                    subplot(4,obj.No/4,i);imshow(uint8(image_search_pad(:,:,:,i)));
-                    rectangle('Position',scaled2rect(gather(bbox_gt_scaled(1,1,1:4,i))),'EdgeColor',[0 1 0]);
+                for i = 1:(obj.kGeneratedExamplesPerImage+1)
+                    subplot(4,ceil((obj.kGeneratedExamplesPerImage+1)/4),i);imshow(uint8(images(:,:,:,i)));
+                    rectangle('Position',scaled2rect(gather(bboxes_gt_scaled(1,1,1:4,i)),obj.Wo),'EdgeColor',[0 1 0]);
                 end
                 drawnow;
             end
             
-            image_target_pad = bsxfun(@minus,image_target_pad,obj.averageImage);
-            image_search_pad = bsxfun(@minus,image_search_pad,obj.averageImage);
-            outputs = {bbox_gt_scaled,image_target_pad,image_search_pad};
+            targets = bsxfun(@minus,targets,obj.averageImage);
+            images = bsxfun(@minus,images,obj.averageImage);
+            outputs = {targets,images,bboxes_gt_scaled};
         end
         
         function obj = SampleGenerator(varargin)
@@ -132,29 +131,29 @@ classdef SampleGenerator < dagnn.Layer
             % get the output sizes:
             obj.Ho = obj.Ho;
             obj.Wo = obj.Wo;
-            obj.No = obj.No;
+            obj.kGeneratedExamplesPerImage = obj.kGeneratedExamplesPerImage;
             obj.padding = obj.padding;
             obj.averageImage = obj.averageImage;
             obj.visual = obj.visual;
-            obj.xxyy = [];
+            obj.yyxx = [];
         end
         
         function obj = reset(obj)
             reset@dagnn.Layer(obj) ;
-            obj.xxyy = [] ;
+            obj.yyxx = [] ;
         end
         
         function initGrid(obj, useGPU)
             % initialize the grid:
             % this is a constant
-            xi = linspace(-1, 1, obj.Ho);
-            yi = linspace(-1, 1, obj.Wo);
-            [yy,xx] = meshgrid(yi,xi);
-            xxyy_ = [xx(:), yy(:)]' ; % 2xM
+            yi = linspace(-1, 1, obj.Ho);
+            xi = linspace(-1, 1, obj.Wo);
+            [xx,yy] = meshgrid(xi,yi);
+            yyxx_ = single([yy(:), xx(:)]') ; % 2xM
             if useGPU
-                obj.xxyy = gpuArray(xxyy_);
+                yyxx_ = gpuArray(yyxx_);
             end
-            obj.xxyy = xxyy_ ;
+            obj.yyxx = yyxx_ ;
         end
     end
 end
@@ -180,16 +179,18 @@ new_width = min(max(width*(1+width_scale_factor),1),image_sz(2)-1);
 height_scale_factor = max(min(laplace_rand(15,n),0.4),-0.4);
 new_height = min(max(height*(1+height_scale_factor),1),image_sz(1)-1);
 
-new_x_temp = center_x+laplace_rand(5,n);
+new_x_temp = center_x+width*max(min(laplace_rand(5,n),0.2),-0.2);
 new_center_x = min(image_sz(2)-new_width/2,max(new_width/2,new_x_temp));
 new_center_x = min(max(new_center_x,center_x-width),center_x+width);
 
-new_y_temp = center_y+laplace_rand(5,n);
+new_y_temp = center_y+height*max(min(laplace_rand(5,n),0.2),-0.2);
 new_center_y = min(image_sz(1)-new_height/2,max(new_height/2,new_y_temp));
 new_center_y = min(max(new_center_y,center_y-height),center_y+height);
 
-bbox_curr_shift(1:4,1:n) = [new_center_x;new_center_y;new_center_x;new_center_y]-...
-    [new_width;new_height;-new_width;-new_height]/2;
+bbox_curr_shift(1,1:n) = new_center_x - new_width/2;
+bbox_curr_shift(2,1:n) = new_center_y - new_height/2;
+bbox_curr_shift(3,1:n) = new_center_x + new_width/2;
+bbox_curr_shift(4,1:n) = new_center_y + new_height/2;
 
 if useGPU
     bbox_curr_shift = gpuArray(bbox_curr_shift);
@@ -198,6 +199,6 @@ end
 end %%function
 
 function lp = laplace_rand(lambda,n)
-u = rand(1,n)-0.5;
+u = rand(1,n,'single')-0.5;
 lp = (sign(u).*log(1-abs(2*u)))/lambda;
 end %%function

@@ -9,16 +9,16 @@ run vl_setupnn.m;
 net = dagnn.DagNN();
 net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
 
-SampleGenerator = dagnn.SampleGenerator('Ho',227,'Wo',227,'No',32,'padding',1,...
-    'averageImage',net.meta.normalization.averageImage,'visual',false);
+SampleGenerator = dagnn.SampleGenerator('Ho',227,'Wo',227,'kGeneratedExamplesPerImage',10,'padding',1,...
+    'averageImage',net.meta.normalization.averageImage,'visual',ismac());
 net.addLayer('SampleGenerator',SampleGenerator,...
-    {'bbox_target','bbox_search','image_target','image_search'},...
-    {'bbox_gt_scaled','image_target_crop','image_search_crop'});
+    {'image_prev','image_curr','bbox_prev','bbox_curr'},...
+    {'targets','images','bboxes_gt_scaled'});
 
 %% target
 
 conv1 = dagnn.Conv('size', [11 11 3 96], 'pad', 0, 'stride', 4, 'hasBias', true);
-net.addLayer('conv1', conv1, {'image_target_crop'}, {'conv1'}, {'conv1f', 'conv1b'});
+net.addLayer('conv1', conv1, {'targets'}, {'conv1'}, {'conv1f', 'conv1b'});
 net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
 norm1 = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
 net.addLayer('norm1', norm1, {'conv1x'}, {'norm1'});
@@ -50,7 +50,7 @@ net.addLayer('pool5', pool5, {'conv5x'}, {'pool5'});
 %% image
 
 conv1_p = dagnn.Conv('size', [11 11 3 96], 'pad', 0, 'stride', 4, 'hasBias', true);
-net.addLayer('conv1_p', conv1_p, {'image_search_crop'}, {'conv1_p'}, {'conv1f', 'conv1b'});
+net.addLayer('conv1_p', conv1_p, {'images'}, {'conv1_p'}, {'conv1f', 'conv1b'});
 net.addLayer('relu1_p', dagnn.ReLU(), {'conv1_p'}, {'conv1x_p'});
 norm1_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
 net.addLayer('norm1_p', norm1_p, {'conv1x_p'}, {'norm1_p'});
@@ -106,7 +106,7 @@ net.addLayer('drop7b', drop7b, {'fc7bx'}, {'fc7bx_dropout'});
 fc8_shapes = dagnn.Conv('size', [1 1 4096 4], 'pad', 0, 'stride', 1, 'hasBias', true);
 net.addLayer('fc8_shapes', fc8_shapes, {'fc7bx_dropout'}, {'fc8'}, {'filters8', 'biases8'});
 
-net.addLayer('lossl1', dagnn.LossL1(), {'fc8', 'bbox_gt_scaled'}, 'objective');
+net.addLayer('lossl1', dagnn.LossL1(), {'fc8', 'bboxes_gt_scaled'}, 'objective');
 
 %% params
 net.initParams();

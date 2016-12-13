@@ -66,18 +66,18 @@ function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
 if opts.numGpus > 0
     if imdb.images.set(batch) == 2 || mod(randi(2,1),imdb.type) == 0
-        image_target = vl_imreadjpeg(imdb.images.video_target(batch),'GPU');
-        image_target = image_target{1};
-        image_search = vl_imreadjpeg(imdb.images.video_search(batch),'GPU');
-        image_search = image_search{1};
-        bbox_target = gpuArray(imdb.images.video_target_bboxs(batch,1:4));
-        bbox_search = gpuArray(imdb.images.video_search_bboxs(batch,1:4));
+        image_prev = vl_imreadjpeg(imdb.images.video_target(batch),'GPU');
+        image_prev = image_prev{1};
+        image_curr = vl_imreadjpeg(imdb.images.video_search(batch),'GPU');
+        image_curr = image_curr{1};
+        bbox_prev = gpuArray(imdb.images.video_target_bboxs(batch,1:4));
+        bbox_curr = gpuArray(imdb.images.video_search_bboxs(batch,1:4));
     else
         batch = randi(imdb.images.n_valid_images,1);
-        image_target = vl_imreadjpeg(imdb.images.image_path(batch),'GPU');
-        image_target = image_target{1};
-        image_search = image_target;
-        image_sz = size(image_search);
+        image_prev = vl_imreadjpeg(imdb.images.image_path(batch),'GPU');
+        image_prev = image_prev{1};
+        image_curr = image_prev;
+        image_sz = size(image_curr);
         image_sz = image_sz([2,1]); %width height
         if(any(image_sz ~= imdb.images.image_display_sz(batch,:)))
             factor = image_sz./imdb.images.image_display_sz(batch,:);
@@ -86,23 +86,23 @@ if opts.numGpus > 0
             factor = [1,1,1,1];
         end
         
-        bbox_target = gpuArray(imdb.images.image_bboxs(batch,:).*factor);
-        bbox_search = bbox_target;
+        bbox_prev = gpuArray(imdb.images.image_bboxs(batch,:).*factor);
+        bbox_curr = bbox_prev;
     end
 else
     if imdb.images.set(batch) == 2 || mod(randi(2,1),imdb.type) == 0
-        image_target = vl_imreadjpeg(imdb.images.video_target(batch));
-        image_target = image_target{1};
-        image_search = vl_imreadjpeg(imdb.images.video_search(batch));
-        image_search = image_search{1};
-        bbox_target = imdb.images.video_target_bboxs(batch,1:4);
-        bbox_search = imdb.images.video_search_bboxs(batch,1:4);
+        image_prev = vl_imreadjpeg(imdb.images.video_target(batch));
+        image_prev = image_prev{1};
+        image_curr = vl_imreadjpeg(imdb.images.video_search(batch));
+        image_curr = image_curr{1};
+        bbox_prev = imdb.images.video_target_bboxs(batch,1:4);
+        bbox_curr = imdb.images.video_search_bboxs(batch,1:4);
     else
         batch = randi(imdb.images.n_valid_images,1);
-        image_target = vl_imreadjpeg(imdb.images.image_path(batch));
-        image_target = image_target{1};
-        image_search = image_target;
-        image_sz = size(image_search);
+        image_prev = vl_imreadjpeg(imdb.images.image_path(batch));
+        image_prev = image_prev{1};
+        image_curr = image_prev;
+        image_sz = size(image_curr);
         image_sz = image_sz([2,1]); %width height
         if(any(image_sz ~= imdb.images.image_display_sz(batch,:)))
             factor = image_sz./imdb.images.image_display_sz(batch,:);
@@ -111,11 +111,11 @@ else
             factor = [1,1,1,1];
         end
         
-        bbox_target = imdb.images.image_bboxs(batch,:).*factor;
-        bbox_search = bbox_target;
+        bbox_prev = imdb.images.image_bboxs(batch,:).*factor;
+        bbox_curr = bbox_prev;
     end
 end
 
-inputs = {'bbox_target',bbox_target,'bbox_search',bbox_search,...
-    'image_target',image_target,'image_search',image_search} ;
+inputs = {'image_prev',image_prev,'image_curr',image_curr,...
+    'bbox_prev',bbox_prev,'bbox_curr',bbox_curr} ;
 end
