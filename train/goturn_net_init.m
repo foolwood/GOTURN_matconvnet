@@ -61,7 +61,7 @@ conv2_p = dagnn.Conv('size', [5 5 48 256], 'pad', 2, 'stride', 1, 'hasBias', tru
 net.addLayer('conv2_p', conv2_p, {'norm1_p'}, {'conv2_p'}, {'conv2f', 'conv2b'});
 net.addLayer('relu2_p', dagnn.ReLU(), {'conv2_p'}, {'conv2x_p'});
 pool2_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3], 'pad', 0, 'stride', 2);
-net.addLayer('pool2_p', pool2_p, {'norm2_p'}, {'pool2_p'});
+net.addLayer('pool2_p', pool2_p, {'conv2x_p'}, {'pool2_p'});
 norm2_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
 net.addLayer('norm2_p', norm2_p, {'pool2_p'}, {'norm2_p'});
 
