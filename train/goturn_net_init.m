@@ -20,21 +20,21 @@ net.addLayer('SampleGenerator',SampleGenerator,...
 conv1 = dagnn.Conv('size', [11 11 3 96], 'pad', 0, 'stride', 4, 'hasBias', true);
 net.addLayer('conv1', conv1, {'targets'}, {'conv1'}, {'conv1f', 'conv1b'});
 net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
-norm1 = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
-net.addLayer('norm1', norm1, {'conv1x'}, {'norm1'});
 pool1 = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
-net.addLayer('pool1', pool1, {'norm1'}, {'pool1'});
+net.addLayer('pool1', pool1, {'conv1x'}, {'pool1'});
+norm1 = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
+net.addLayer('norm1', norm1, {'pool1'}, {'norm1'});
 
 conv2 = dagnn.Conv('size', [5 5 48 256], 'pad', 2, 'stride', 1, 'hasBias', true);
-net.addLayer('conv2', conv2, {'pool1'}, {'conv2'}, {'conv2f', 'conv2b'});
+net.addLayer('conv2', conv2, {'norm1'}, {'conv2'}, {'conv2f', 'conv2b'});
 net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
-norm2 = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
-net.addLayer('norm2', norm2, {'conv2x'}, {'norm2'});
 pool2 = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
-net.addLayer('pool2', pool2, {'norm2'}, {'pool2'});
+net.addLayer('pool2', pool2, {'conv2x'}, {'pool2'});
+norm2 = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
+net.addLayer('norm2', norm2, {'pool2'}, {'norm2'});
 
 conv3 = dagnn.Conv('size', [3 3 256 384], 'pad', 1, 'stride', 1, 'hasBias', true);
-net.addLayer('conv3', conv3, {'pool2'}, {'conv3'}, {'conv3f', 'conv3b'});
+net.addLayer('conv3', conv3, {'norm2'}, {'conv3'}, {'conv3f', 'conv3b'});
 net.addLayer('relu3', dagnn.ReLU(), {'conv3'}, {'conv3x'});
 
 conv4 = dagnn.Conv('size', [3 3 192 384], 'pad', 1, 'stride', 1, 'hasBias', true);
@@ -52,21 +52,21 @@ net.addLayer('pool5', pool5, {'conv5x'}, {'pool5'});
 conv1_p = dagnn.Conv('size', [11 11 3 96], 'pad', 0, 'stride', 4, 'hasBias', true);
 net.addLayer('conv1_p', conv1_p, {'images'}, {'conv1_p'}, {'conv1f', 'conv1b'});
 net.addLayer('relu1_p', dagnn.ReLU(), {'conv1_p'}, {'conv1x_p'});
-norm1_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
-net.addLayer('norm1_p', norm1_p, {'conv1x_p'}, {'norm1_p'});
 pool1_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3],'pad', 0, 'stride', 2);
-net.addLayer('pool1_p', pool1_p, {'norm1_p'}, {'pool1_p'});
+net.addLayer('pool1_p', pool1_p, {'conv1x_p'}, {'pool1_p'});
+norm1_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
+net.addLayer('norm1_p', norm1_p, {'pool1_p'}, {'norm1_p'});
 
 conv2_p = dagnn.Conv('size', [5 5 48 256], 'pad', 2, 'stride', 1, 'hasBias', true);
-net.addLayer('conv2_p', conv2_p, {'pool1_p'}, {'conv2_p'}, {'conv2f', 'conv2b'});
+net.addLayer('conv2_p', conv2_p, {'norm1_p'}, {'conv2_p'}, {'conv2f', 'conv2b'});
 net.addLayer('relu2_p', dagnn.ReLU(), {'conv2_p'}, {'conv2x_p'});
-norm2_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
-net.addLayer('norm2_p', norm2_p, {'conv2x_p'}, {'norm2_p'});
 pool2_p = dagnn.Pooling('method', 'max', 'poolSize', [3 3], 'pad', 0, 'stride', 2);
 net.addLayer('pool2_p', pool2_p, {'norm2_p'}, {'pool2_p'});
+norm2_p = dagnn.LRN('param', [5 1 0.0001/5 0.75]);
+net.addLayer('norm2_p', norm2_p, {'pool2_p'}, {'norm2_p'});
 
 conv3_p = dagnn.Conv('size', [3 3 256 384], 'pad', 1, 'stride', 1, 'hasBias', true);
-net.addLayer('conv3_p', conv3_p, {'pool2_p'}, {'conv3_p'}, {'conv3f', 'conv3b'});
+net.addLayer('conv3_p', conv3_p, {'norm2_p'}, {'conv3_p'}, {'conv3f', 'conv3b'});
 net.addLayer('relu3_p', dagnn.ReLU(), {'conv3_p'}, {'conv3x_p'});
 
 conv4_p = dagnn.Conv('size', [3 3 192 384], 'pad', 1, 'stride', 1, 'hasBias', true);

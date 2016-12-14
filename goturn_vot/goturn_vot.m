@@ -4,7 +4,7 @@ function goturn_vot
 % *************************************************************
 % VOT: Always call exit command at the end to terminate Matlab!
 % *************************************************************
-% cleanup = onCleanup(@() exit() );
+cleanup = onCleanup(@() exit() );
 
 % *************************************************************
 % VOT: Set random seed to a different value every time.
@@ -46,7 +46,7 @@ end;
 % **********************************
 % VOT: Output the results
 % **********************************
-% handle.quit(handle);
+handle.quit(handle);
 
 end
 
@@ -57,7 +57,7 @@ state.gpu = ispc();
 state.visualization = false;
 
 state.net = dagnn.DagNN.loadobj(load('GOTURN_trained.mat'));
-state.net.mode = 'test';
+state.net.mode = 'normal';
 state.net.layers(1).block.kGeneratedExamplesPerImage = 0;
 
 if state.gpu,state.net.move('gpu');end;
@@ -71,7 +71,7 @@ end
 
 state.rect2bbox = @(x) ([x(1)-1,x(2)-1,x(1)-1+x(3),x(2)-1+x(4)]);
 state.bbox2rect = @(x) ([x(1)+1,x(2)+1,x(3)-x(1),x(4)-x(2)]);
-state.scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*(227-1)+1;
+state.scaled2rect = @(x) [x(1),x(2),x(3)-x(1),x(4)-x(2)]/10*227+1;
 
 if state.gpu
     state.image_prev = vl_imreadjpeg({image}, 'GPU');
