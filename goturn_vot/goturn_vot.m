@@ -54,10 +54,10 @@ function [state, location] = goturn_initialize(image, region, varargin)
 
 state = [];
 state.gpu = ispc();
-state.visualization = false;
+state.visualization = true;
 
 state.net = dagnn.DagNN.loadobj(load('GOTURN_trained.mat'));
-state.net.mode = 'normal';
+state.net.mode = 'test';
 state.net.layers(1).block.kGeneratedExamplesPerImage = 0;
 
 if state.gpu,state.net.move('gpu');end;
