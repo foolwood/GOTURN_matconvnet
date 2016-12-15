@@ -110,23 +110,23 @@ net.addLayer('lossl1', dagnn.LossL1(), {'fc8', 'bboxes_gt_scaled'}, 'objective')
 
 %% params
 net.initParams();
-alex_net = load('../model/imagenet-caffe-alex.mat');
-alex_net = dagnn.DagNN.fromSimpleNN(alex_net);
-net.params(net.getParamIndex('conv1f')).value = alex_net.params(alex_net.getParamIndex('conv1f')).value;
-net.params(net.getParamIndex('conv1b')).value = alex_net.params(alex_net.getParamIndex('conv1b')).value;
+caffe_net = load('../model/imagenet-caffe-ref.mat');
+caffe_net = dagnn.DagNN.fromSimpleNN(caffe_net);
+net.params(net.getParamIndex('conv1f')).value = caffe_net.params(caffe_net.getParamIndex('conv1f')).value;
+net.params(net.getParamIndex('conv1b')).value = caffe_net.params(caffe_net.getParamIndex('conv1b')).value;
 
-net.params(net.getParamIndex('conv2f')).value = alex_net.params(alex_net.getParamIndex('conv2f')).value;
-net.params(net.getParamIndex('conv2b')).value = alex_net.params(alex_net.getParamIndex('conv2b')).value;
+net.params(net.getParamIndex('conv2f')).value = caffe_net.params(caffe_net.getParamIndex('conv2f')).value;
+net.params(net.getParamIndex('conv2b')).value = caffe_net.params(caffe_net.getParamIndex('conv2b')).value;
 
-net.params(net.getParamIndex('conv3f')).value = alex_net.params(alex_net.getParamIndex('conv3f')).value;
-net.params(net.getParamIndex('conv3b')).value = alex_net.params(alex_net.getParamIndex('conv3b')).value;
+net.params(net.getParamIndex('conv3f')).value = caffe_net.params(caffe_net.getParamIndex('conv3f')).value;
+net.params(net.getParamIndex('conv3b')).value = caffe_net.params(caffe_net.getParamIndex('conv3b')).value;
 
-net.params(net.getParamIndex('conv4f')).value = alex_net.params(alex_net.getParamIndex('conv4f')).value;
-net.params(net.getParamIndex('conv4b')).value = alex_net.params(alex_net.getParamIndex('conv4b')).value;
+net.params(net.getParamIndex('conv4f')).value = caffe_net.params(caffe_net.getParamIndex('conv4f')).value;
+net.params(net.getParamIndex('conv4b')).value = caffe_net.params(caffe_net.getParamIndex('conv4b')).value;
 
-net.params(net.getParamIndex('conv5f')).value = alex_net.params(alex_net.getParamIndex('conv5f')).value;
-net.params(net.getParamIndex('conv5b')).value = alex_net.params(alex_net.getParamIndex('conv5b')).value;
-clear alex_net
+net.params(net.getParamIndex('conv5f')).value = caffe_net.params(caffe_net.getParamIndex('conv5f')).value;
+net.params(net.getParamIndex('conv5b')).value = caffe_net.params(caffe_net.getParamIndex('conv5b')).value;
+clear caffe_net
 
 frozenParamIdx = net.getParamIndex({'conv1f','conv1b',...
     'conv2f','conv2b','conv3f','conv3b',...
