@@ -66,14 +66,14 @@ function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
 if opts.numGpus > 0
     if imdb.images.set(batch) == 2 || mod(randi(2,1),imdb.type) == 0
-        image_prev = vl_imreadjpeg(imdb.images.video_target(batch),'GPU');
+        image_prev = vl_imreadjpeg(imdb.images.video_images_prev(batch),'GPU');
         image_prev = image_prev{1};
-        image_curr = vl_imreadjpeg(imdb.images.video_search(batch),'GPU');
+        image_curr = vl_imreadjpeg(imdb.images.video_images_curr(batch),'GPU');
         image_curr = image_curr{1};
-        bbox_prev = gpuArray(imdb.images.video_target_bboxs(batch,1:4));
-        bbox_curr = gpuArray(imdb.images.video_search_bboxs(batch,1:4));
+        bbox_prev = gpuArray(imdb.images.video_bbox_prev(batch,1:4));
+        bbox_curr = gpuArray(imdb.images.video_bbox_curr(batch,1:4));
     else
-        batch = randi(imdb.images.n_valid_images,1);
+        batch = randi(imdb.images.image_n_valid,1);
         image_prev = vl_imreadjpeg(imdb.images.image_path(batch),'GPU');
         image_prev = image_prev{1};
         image_curr = image_prev;
@@ -86,19 +86,19 @@ if opts.numGpus > 0
             factor = [1,1,1,1];
         end
         
-        bbox_prev = gpuArray(imdb.images.image_bboxs(batch,:).*factor);
+        bbox_prev = gpuArray(imdb.images.image_bbox(batch,:).*factor);
         bbox_curr = bbox_prev;
     end
 else
     if imdb.images.set(batch) == 2 || mod(randi(2,1),imdb.type) == 0
-        image_prev = vl_imreadjpeg(imdb.images.video_target(batch));
+        image_prev = vl_imreadjpeg(imdb.images.video_images_prev(batch));
         image_prev = image_prev{1};
-        image_curr = vl_imreadjpeg(imdb.images.video_search(batch));
+        image_curr = vl_imreadjpeg(imdb.images.video_images_curr(batch));
         image_curr = image_curr{1};
-        bbox_prev = imdb.images.video_target_bboxs(batch,1:4);
-        bbox_curr = imdb.images.video_search_bboxs(batch,1:4);
+        bbox_prev = imdb.images.video_bbox_prev(batch,1:4);
+        bbox_curr = imdb.images.video_bbox_curr(batch,1:4);
     else
-        batch = randi(imdb.images.n_valid_images,1);
+        batch = randi(imdb.images.image_n_valid,1);
         image_prev = vl_imreadjpeg(imdb.images.image_path(batch));
         image_prev = image_prev{1};
         image_curr = image_prev;
@@ -111,7 +111,7 @@ else
             factor = [1,1,1,1];
         end
         
-        bbox_prev = imdb.images.image_bboxs(batch,:).*factor;
+        bbox_prev = imdb.images.image_bbox(batch,:).*factor;
         bbox_curr = bbox_prev;
     end
 end

@@ -51,10 +51,10 @@ end
 
 imdb.type = type;
 imdb.images.set = video_set;
-imdb.images.video_target = cell([numel(video_set),1]);
-imdb.images.video_search = cell([numel(video_set),1]);
-imdb.images.video_target_bboxs = zeros(numel(video_set),4,'single');
-imdb.images.video_search_bboxs = zeros(numel(video_set),4,'single');
+imdb.images.video_images_prev = cell([numel(video_set),1]);
+imdb.images.video_images_curr = cell([numel(video_set),1]);
+imdb.images.video_bbox_prev = zeros(numel(video_set),4,'single');
+imdb.images.video_bbox_curr = zeros(numel(video_set),4,'single');
 
 now_index = 0;
 % -------------------------------------------------------------------------
@@ -71,10 +71,10 @@ if any(strcmpi(set_name,'vot16'))
         [img_files, ground_truth_4xy] = load_video_info_vot(vot16_dataDir, video);
         bbox_gt = get_bbox(ground_truth_4xy);
         n_len = numel(img_files);
-        imdb.images.video_target(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
-        imdb.images.video_search(now_index+(1:(n_len-1))) = img_files(2:n_len);
-        imdb.images.video_target_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
-        imdb.images.video_search_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
+        imdb.images.video_images_prev(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
+        imdb.images.video_images_curr(now_index+(1:(n_len-1))) = img_files(2:n_len);
+        imdb.images.video_bbox_prev(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
+        imdb.images.video_bbox_curr(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
         now_index = now_index+(n_len-1);
     end %%end v
 end %%end vot16
@@ -94,10 +94,10 @@ if any(strcmpi(set_name,'nus_pro'))
         [img_files, ground_truth_4xy] = load_video_info_nus_pro(nus_pro_dataDir, video);
         bbox_gt = get_bbox(ground_truth_4xy);
         n_len = numel(img_files);
-        imdb.images.video_target(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
-        imdb.images.video_search(now_index+(1:(n_len-1))) = img_files(2:n_len);
-        imdb.images.video_target_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
-        imdb.images.video_search_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
+        imdb.images.video_images_prev(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
+        imdb.images.video_images_curr(now_index+(1:(n_len-1))) = img_files(2:n_len);
+        imdb.images.video_bbox_prev(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
+        imdb.images.video_bbox_curr(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
         now_index = now_index+(n_len-1);
     end %%end v
 end %%end nus-pro
@@ -118,10 +118,10 @@ if any(strcmpi(set_name,'tc128'))
         [img_files, ground_truth_4xy] = load_video_info_tc128(tc128_dataDir, video);
         bbox_gt = get_bbox(ground_truth_4xy);
         n_len = numel(img_files);
-        imdb.images.video_target(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
-        imdb.images.video_search(now_index+(1:(n_len-1))) = img_files(2:n_len);
-        imdb.images.video_target_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
-        imdb.images.video_search_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
+        imdb.images.video_images_prev(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
+        imdb.images.video_images_curr(now_index+(1:(n_len-1))) = img_files(2:n_len);
+        imdb.images.video_bbox_prev(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
+        imdb.images.video_bbox_curr(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
         now_index = now_index+(n_len-1);
     end %%end v
 end %%end tc128
@@ -150,10 +150,10 @@ if any(strcmpi(set_name,'alov300'))
         [img_files, ground_truth_4xy] = load_video_info_alov300(alov300_dataDir, video);
         bbox_gt = get_bbox(ground_truth_4xy);
         n_len = numel(img_files);
-        imdb.images.video_target(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
-        imdb.images.video_search(now_index+(1:(n_len-1))) = img_files(2:n_len);
-        imdb.images.video_target_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
-        imdb.images.video_search_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
+        imdb.images.video_images_prev(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
+        imdb.images.video_images_curr(now_index+(1:(n_len-1))) = img_files(2:n_len);
+        imdb.images.video_bbox_prev(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
+        imdb.images.video_bbox_curr(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
         now_index = now_index+(n_len-1);
     end %%end v
 end %%end alov300
@@ -183,10 +183,10 @@ if any(strcmpi(set_name,'tc128_no_cvpr2013'))
         [img_files, ground_truth_4xy] = load_video_info_tc128(tc128_dataDir, video);
         bbox_gt = get_bbox(ground_truth_4xy);
         n_len = numel(img_files);
-        imdb.images.video_target(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
-        imdb.images.video_search(now_index+(1:(n_len-1))) = img_files(2:n_len);
-        imdb.images.video_target_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
-        imdb.images.video_search_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
+        imdb.images.video_images_prev(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
+        imdb.images.video_images_curr(now_index+(1:(n_len-1))) = img_files(2:n_len);
+        imdb.images.video_bbox_prev(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
+        imdb.images.video_bbox_curr(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
         now_index = now_index+(n_len-1);
     end %%end v
 end %%end tc128_no_cvpr2013
@@ -223,10 +223,10 @@ if any(strcmpi(set_name,'alov300_goturn'))
             load_video_info_alov300(alov300_dataDir, video,false);
         bbox_gt = get_bbox(ground_truth_4xy);
         n_len = numel(img_files);
-        imdb.images.video_target(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
-        imdb.images.video_search(now_index+(1:(n_len-1))) = img_files(2:n_len);
-        imdb.images.video_target_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
-        imdb.images.video_search_bboxs(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
+        imdb.images.video_images_prev(now_index+(1:(n_len-1))) = img_files(1:(n_len-1));
+        imdb.images.video_images_curr(now_index+(1:(n_len-1))) = img_files(2:n_len);
+        imdb.images.video_bbox_prev(now_index+(1:(n_len-1)),:) = bbox_gt(1:(n_len-1),:);
+        imdb.images.video_bbox_curr(now_index+(1:(n_len-1)),:) = bbox_gt(2:n_len,:);
         now_index = now_index+(n_len-1);
     end %%end v
 end %%end alov300
@@ -244,9 +244,9 @@ if any(strcmpi(set_name,'det16'))
     bbox_gt = get_bbox(ground_truth_4xy);
     n_len = numel(img_files);
     imdb.images.image_path = img_files;
-    imdb.images.image_bboxs = bbox_gt;
+    imdb.images.image_bbox = bbox_gt;
     imdb.images.image_display_sz = img_display_sz;
-    imdb.images.n_valid_images = n_len;
+    imdb.images.image_n_valid = n_len;
     
     now_index = now_index+n_len;
 end %%end det
