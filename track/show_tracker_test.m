@@ -1,12 +1,12 @@
-addpath('/home/qwang/matconvnet/matlab')
+addpath('../matconvnet/matlab')
 addpath('../utils');
 run vl_setupnn;
 if ispc()
     net_file = '../model/GOTURN_net.mat';
     base_path = '../data/VOT15/';
-    gpu_id = [1,2];
+    gpu_id = [];
     start_vidoe_num = 1;
-    show_visualization = 0;
+    show_visualization = 1;
 else
     net_file = '../model/GOTURN_net.mat';
     base_path = '../data/VOT15/';

@@ -25,3 +25,4 @@
 *.zip
 /data/ILSVRC/*
 *.DS_Store
+/matconvnet/*
